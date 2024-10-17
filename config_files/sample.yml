@@ -8,8 +8,8 @@ experiment:
         visual_features: ../data/{0}/visual_embeddings/resnet
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/textual_embeddings/bert
-      #- dataloader: AudioAttribute  # TODO check class AudioAttribute(AbstractLoader) for details, items are strings not numbers?
-      #  audio_features: ../data/{0}/audio_embeddings/musicnn
+      - dataloader: AudioAttribute
+        audio_features: ../data/{0}/audio_embeddings/musicnn
   dataset: sample
   prefiltering:
     strategy: iterative_k_core
@@ -69,3 +69,25 @@ experiment:
       l_w: 0.1
       n_layers: 1
       n_fold: 5
+    external.BM3:
+      meta:
+        hyper_opt_alg: grid
+        verbose: True
+        save_weights: False
+        save_recs: False
+        validation_rate: 10
+        validation_metric: Recall@20
+        restore: False
+      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+      multimod_factors: 64
+      reg_weight: [ 0.1, 0.01 ]
+      cl_weight: 2.0
+      dropout: 0.3
+      n_layers: 2
+      modalities: ('visual', 'textual')
+      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute')
+      epochs: 200
+      factors: 64
+      lr_sched: (1.0,50)
+      batch_size: 1024
+      seed: 123
