@@ -4,12 +4,12 @@ experiment:
     strategy: dataset
     dataset_path: ../data/{0}/interactions.tsv
     side_information:
-      #- dataloader: VisualAttribute
-      #  visual_features: ../data/{0}/visual_embeddings/resnet
-      #- dataloader: TextualAttribute
-      #  textual_features: ../data/{0}/textual_embeddings/bert # TODO something wrong in data loading here...df empty
-      - dataloader: AudioAttribute
-        audio_features: ../data/{0}/audio_embeddings/musicnn
+      - dataloader: VisualAttribute
+        visual_features: ../data/{0}/visual_embeddings/resnet
+      - dataloader: TextualAttribute
+        textual_features: ../data/{0}/textual_embeddings/bert
+      #- dataloader: AudioAttribute  # TODO check class AudioAttribute(AbstractLoader) for details, items are strings not numbers?
+      #  audio_features: ../data/{0}/audio_embeddings/musicnn
   dataset: sample
   prefiltering:
     strategy: iterative_k_core

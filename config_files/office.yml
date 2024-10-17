@@ -1,16 +1,26 @@
 experiment:
   backend: pytorch
   data_config:
-    strategy: fixed
-    train_path: ../data/{0}/train.txt
-    validation_path: ../data/{0}/val.txt
-    test_path: ../data/{0}/test.txt
+    strategy: dataset
+    dataset_path: ../data/{0}/df.tsv
     side_information:
       - dataloader: VisualAttribute
         visual_features: ../data/{0}/image_feat
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/text_feat
   dataset: office
+  prefiltering:
+    strategy: iterative_k_core
+    core: 5
+  splitting:
+    save_on_disk: True
+    save_folder: ../data/sample/splits
+    test_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.2
+    validation_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.2
   top_k: 20
   evaluation:
     cutoffs: [ 10, 20 ]
