@@ -6,8 +6,8 @@ experiment:
     side_information:
       #- dataloader: VisualAttribute
       #  visual_features: ../data/{0}/visual_embeddings/resnet
-      - dataloader: TextualAttribute
-        textual_features: ../data/{0}/textual_embeddings/bert # TODO something wrong in data loading here...df empty
+      #- dataloader: TextualAttribute
+      #  textual_features: ../data/{0}/textual_embeddings/bert # TODO something wrong in data loading here...df empty
       - dataloader: AudioAttribute
         audio_features: ../data/{0}/audio_embeddings/musicnn
   dataset: sample
@@ -16,13 +16,13 @@ experiment:
     core: 5
   splitting:
     save_on_disk: True
-    save_folder: ../data/m4a/splits
+    save_folder: ../data/sample/splits
     test_splitting:
-      strategy: fixed_timestamp
-      timestamp: best
+      strategy: random_subsampling
+      test_ratio: 0.2
     validation_splitting:
-      strategy: fixed_timestamp
-      timestamp: best
+      strategy: random_subsampling
+      test_ratio: 0.2
   print_results_as_triplets: True
   top_k: 50
   evaluation:
@@ -33,67 +33,39 @@ experiment:
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
-    external.VBPR:
+    ItemKNN:
       meta:
-        hyper_opt_alg: grid
-        verbose: True
-        save_weights: False
-        save_recs: False
-        validation_rate: 10
-        validation_metric: Recall@20
-        restore: False
-      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-      modalities: ('visual', 'textual')
-      epochs: 200
-      factors: 64
-      batch_size: 1024
-      l_w: [ 1e-5, 1e-2 ]
-      comb_mod: concat
-      loaders: ('VisualAttribute', 'TextualAttribute')
-      seed: 123
-    external.BM3:
+        save_recs: True
+      neighbors: 40
+      similarity: cosine
+      implementation: aiolli
+    UserKNN:
       meta:
-        hyper_opt_alg: grid
-        verbose: True
-        save_weights: False
-        save_recs: False
-        validation_rate: 10
-        validation_metric: Recall@20
-        restore: False
-      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-      multimod_factors: 64
-      reg_weight: [ 0.1, 0.01 ]
-      cl_weight: 2.0
-      dropout: 0.3
-      n_layers: 2
-      modalities: ('visual', 'textual')
-      loaders: ('VisualAttribute', 'TextualAttribute')
-      epochs: 200
-      factors: 64
-      lr_sched: (1.0,50)
-      batch_size: 1024
-      seed: 123
-    external.FREEDOM:
+        save_recs: True
+      neighbors: 40
+      similarity: cosine
+      implementation: aiolli
+    BPRMF:
       meta:
-        hyper_opt_alg: grid
-        verbose: True
-        save_weights: False
-        save_recs: False
-        validation_rate: 10
-        validation_metric: Recall@20
-        restore: False
-      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+        save_recs: True
+      epochs: 10
+      factors: 10
+      lr: 0.001
+      bias_regularization: 0
+      user_regularization: 0.0025
+      positive_item_regularization: 0.0025
+      negative_item_regularization: 0.0025
+      update_negative_item_factors: True
+      update_users: True
+      update_items: True
+      update_bias: True
+    LightGCN:
+      meta:
+        save_recs: True
+      lr: 0.0005
+      epochs: 50
+      batch_size: 512
       factors: 64
-      epochs: 200
-      l_w: [ 1e-5, 1e-2 ]
+      l_w: 0.1
       n_layers: 1
-      n_ui_layers: 2
-      top_k: 10
-      factors_multimod: 64
-      modalities: ('visual', 'textual')
-      loaders: ('VisualAttribute', 'TextualAttribute')
-      mw: (0.1,0.9)
-      drop: 0.8
-      lr_sched: (1.0,50)
-      batch_size: 1024
-      seed: 123
+      n_fold: 5
