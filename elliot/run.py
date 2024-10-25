@@ -18,10 +18,12 @@ import elliot.hyperoptimization as ho
 from elliot.namespace.namespace_model_builder import NameSpaceBuilder
 from elliot.result_handler.result_handler import ResultHandler, HyperParameterStudy, StatTest
 from elliot.utils import logging as logging_project
-
-_rstate = np.random.RandomState(42)
+# np.random.default_rng(SEED))# https://github.com/hyperopt/hyperopt/issues/838
+# _rstate = np.random.RandomState(42)
 here = path.abspath(path.dirname(__file__))
-
+_rstate = np.random.default_rng(42)
+# print(type(_rstate))
+# exit()
 print(u'''
 
   /\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\   /\\\\\\\\\\\\      /\\\\\\\\\\\\                         ''' + f'Version: {__version__}' + '''                              
@@ -81,6 +83,7 @@ def run_experiment(config_path: str = ''):
             if isinstance(model_base, tuple):
                 logger.info(f"Tuning begun for {model_class.__name__}\n")
                 trials = Trials()
+                print(type(_rstate))
                 fmin(model_placeholder.objective,
                      space=model_base[1],
                      algo=model_base[3],
