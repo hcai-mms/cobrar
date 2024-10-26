@@ -23,8 +23,8 @@ experiment:
         verbose: True
         save_weights: False
         save_recs: False
-        validation_rate: 1
-        validation_metric: NDCG@10
+        validation_rate: 10
+        validation_metric: Recall@20
         restore: False
       lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
       epochs: 200
@@ -32,8 +32,3 @@ experiment:
       batch_size: 1024
       l_w: [ 1e-5, 1e-2 ]
       seed: 123
-      early_stopping:
-        patience: 5
-        mode: auto
-        monitor: NDCG@10
-        verbose: True
