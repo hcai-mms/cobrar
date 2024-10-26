@@ -1,0 +1,39 @@
+experiment:
+  backend: pytorch
+  data_config:
+    strategy: fixed
+    train_path: ../data/{0}/train.tsv
+    validation_path: ../data/{0}/val.tsv
+    test_path: ../data/{0}/test.tsv
+  dataset: onion
+  top_k: 50
+  evaluation:
+    cutoffs: [ 10, 20, 50 ]
+    simple_metrics: [ Recall, Precision, nDCG, HR ]
+  gpu: 0
+  external_models_path: ../external/models/__init__.py
+  models:
+    MostPop:
+      meta:
+        verbose: True
+        save_recs: True
+    external.BPRMF:
+      meta:
+        hyper_opt_alg: grid
+        verbose: True
+        save_weights: False
+        save_recs: False
+        validation_rate: 1
+        validation_metric: NDCG@10
+        restore: False
+      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+      epochs: 200
+      factors: 64
+      batch_size: 1024
+      l_w: [ 1e-5, 1e-2 ]
+      seed: 123
+      early_stopping:
+        patience: 5
+        mode: auto
+        monitor: NDCG@10
+        verbose: True
