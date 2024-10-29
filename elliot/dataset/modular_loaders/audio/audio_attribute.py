@@ -40,11 +40,11 @@ class AudioAttribute(AbstractLoader):
 
         return ns
 
-    def check_items_in_folder(self) -> t.Set[int]:
+    def check_items_in_folder(self):
         items = set()
         if self.audio_feature_folder_path:
             items_folder = os.listdir(self.audio_feature_folder_path)
-            items = items.union(set([int(f.split('.')[0]) for f in items_folder]))
+            items = items.union(set([f.split('.')[0] for f in items_folder]))
             self.audio_features_shape = np.load(os.path.join(self.audio_feature_folder_path,
                                                              items_folder[0])).shape[0]
         return items
