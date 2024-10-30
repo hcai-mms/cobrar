@@ -6,6 +6,7 @@ experiment:
     side_information:
       - dataloader: VisualAttribute
         visual_features: ../data/{0}/visual_embeddings/resnet
+        #visual_features: ../data/{0}/emotion_embeddings/gems
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/textual_embeddings/bert
       - dataloader: AudioAttribute
@@ -34,6 +35,38 @@ experiment:
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
+    ItemKNN:
+        meta:
+          save_recs: False
+        neighbors: 40
+        similarity: cosine
+        implementation: aiolli
+    BPRMF:
+      meta:
+        save_recs: False
+      epochs: 10
+      factors: 10
+      lr: 0.001
+      bias_regularization: 0
+      user_regularization: 0.0025
+      positive_item_regularization: 0.0025
+      negative_item_regularization: 0.0025
+      update_negative_item_factors: True
+      update_users: True
+      update_items: True
+      update_bias: True
+    LightGCN:
+      meta:
+        save_weights: False
+        save_recs: False
+        verbose: False
+      lr: 0.0005
+      epochs: 50
+      batch_size: 512
+      factors: 64
+      l_w: 0.1
+      n_layers: 1
+      n_fold: 5
     external.BM3:
       meta:
         save_weights: False
@@ -45,8 +78,8 @@ experiment:
       cl_weight: 2.0
       dropout: 0.3
       n_layers: 2
-      modalities: ('visual', 'textual', 'audio', 'emotion')
-      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
+      modalities: ('visual', 'textual')
+      loaders: ('VisualAttribute', 'TextualAttribute')
       epochs: 200
       factors: 64
       lr_sched: (1.0,50)
