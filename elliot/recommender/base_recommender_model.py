@@ -88,7 +88,8 @@ class BaseRecommenderModel(ABC):
                          ])
 
     def get_params_shortcut(self):
-        return "_".join([str(p[2])+"="+ str(p[5](getattr(self, p[0])) if p[5] else getattr(self, p[0])).replace(".", "$") for p in self._params_list])
+        short_param_list = [p for p in self._params_list if p[1] not in ['modalities', 'loaders']] # no modalities, saves space for path length limit
+        return "_".join([str(p[2])+"="+ str(p[5](getattr(self, p[0])) if p[5] else getattr(self, p[0])).replace(".", "$") for p in short_param_list])
 
     def autoset_params(self):
         """
@@ -157,6 +158,7 @@ def init_charger(init):
 
         self.evaluator = Evaluator(self._data, self._params)
         self._params.name = self.name
+
         build_model_folder(self._config.path_output_rec_weight, self.name)
         self._saving_filepath = os.path.abspath(os.sep.join([self._config.path_output_rec_weight, self.name, f"best-weights-{self.name}"]))
 
