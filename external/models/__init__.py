@@ -24,3 +24,4 @@ for _backend in sys.modules["external"].backend:
         from .mmgcn.MMGCN import MMGCN
         from .vbpr.VBPR import VBPR
         from .bm3.BM3 import BM3
+        from .clcrec.CLCRec import CLCRec
