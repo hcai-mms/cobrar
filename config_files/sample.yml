@@ -6,7 +6,6 @@ experiment:
     side_information:
       - dataloader: VisualAttribute
         visual_features: ../data/{0}/visual_embeddings/resnet
-        #visual_features: ../data/{0}/emotion_embeddings/gems
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/textual_embeddings/bert
       - dataloader: AudioAttribute
@@ -26,60 +25,36 @@ experiment:
     validation_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
-  top_k: 50
+  top_k: 20
   evaluation:
-    cutoffs: [ 10, 20, 50 ]
-    simple_metrics: [ Recall, Precision, nDCG, HR ]
+    cutoffs: [ 1, 5, 10, 20]
+    simple_metrics: [ Recall, Precision, nDCG, HR, EFD, EPC, ARP, PopREO, PopRSP ]
     paired_ttest: False
     wilcoxon_test: False
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
     ItemKNN:
-        meta:
-          save_recs: False
-        neighbors: 40
-        similarity: cosine
-        implementation: aiolli
-    BPRMF:
-      meta:
-        save_recs: False
-      epochs: 10
-      factors: 10
-      lr: 0.001
-      bias_regularization: 0
-      user_regularization: 0.0025
-      positive_item_regularization: 0.0025
-      negative_item_regularization: 0.0025
-      update_negative_item_factors: True
-      update_users: True
-      update_items: True
-      update_bias: True
-    LightGCN:
-      meta:
-        save_weights: False
-        save_recs: False
-        verbose: False
-      lr: 0.0005
-      epochs: 50
-      batch_size: 512
-      factors: 64
-      l_w: 0.1
-      n_layers: 1
-      n_fold: 5
+          meta:
+            save_recs: False
+          neighbors: 40
+          similarity: cosine
+          implementation: aiolli
     external.BM3:
       meta:
         save_weights: False
         save_recs: False
         verbose: False
+        validation_rate: 1
+        validation_metric: nDCG@10
       lr: 0.01
       multimod_factors: 64
       reg_weight: 0.01
       cl_weight: 2.0
       dropout: 0.3
       n_layers: 2
-      modalities: ('visual', 'textual')
-      loaders: ('VisualAttribute', 'TextualAttribute')
+      modalities: ('visual', 'textual', 'audio', 'emotion')
+      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
       epochs: 200
       factors: 64
       lr_sched: (1.0,50)
