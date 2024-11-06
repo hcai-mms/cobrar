@@ -20,10 +20,10 @@ class EmotionAttribute(AbstractLoader):
         self.users = users
         self.items = items & inner_items
 
-    def get_mapped(self) -> t.Tuple[t.Set[int], t.Set[int]]:
+    def get_mapped(self) -> t.Tuple[t.Set[str], t.Set[str]]:
         return self.users, self.items
 
-    def filter(self, users: t.Set[int], items: t.Set[int]):
+    def filter(self, users: t.Set[str], items: t.Set[str]):
         self.users = self.users & users
         self.items = self.items & items
         self.item_mapping = {item: val for val, item in enumerate(self.items)}

@@ -4,8 +4,6 @@ experiment:
     strategy: dataset
     dataset_path: ../data/{0}/interactions.tsv
     side_information:
-      - dataloader: VisualAttribute
-        visual_features: ../data/{0}/visual_embeddings/resnet
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/textual_embeddings/bert
       - dataloader: AudioAttribute
@@ -18,7 +16,7 @@ experiment:
     core: 5
   splitting:
     save_on_disk: True
-    save_folder: ../data/sample/splits
+    save_folder: ../data/{0}/splits
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
@@ -34,13 +32,7 @@ experiment:
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
-    ItemKNN:
-          meta:
-            save_recs: False
-          neighbors: 40
-          similarity: cosine
-          implementation: aiolli
-    external.BM3:
+    external.CLCRec:
       meta:
         save_weights: False
         save_recs: False
@@ -51,12 +43,9 @@ experiment:
       multimod_factors: 64
       reg_weight: 0.01
       cl_weight: 2.0
-      dropout: 0.3
-      n_layers: 2
-      modalities: ('visual', 'textual', 'audio', 'emotion')
-      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
+      modalities: ('textual', 'audio', 'emotion')
+      loaders: ('TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
       epochs: 200
       factors: 64
-      lr_sched: (1.0,50)
       batch_size: 1024
       seed: 123

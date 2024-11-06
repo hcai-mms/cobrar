@@ -14,7 +14,7 @@ experiment:
     core: 5
   splitting:
     save_on_disk: True
-    save_folder: ../data/sample/splits
+    save_folder: ../data/{0}/splits
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
@@ -28,6 +28,26 @@ experiment:
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
+    external.CLCRec:
+      meta:
+        hyper_opt_alg: grid
+        verbose: True
+        save_weights: False
+        save_recs: False
+        validation_rate: 10
+        validation_metric: Recall@20
+        restore: False
+      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+      modalities: ('visual', 'textual')
+      epochs: 200
+      factors: 64
+      batch_size: 1024
+      reg_weight: [ 0.1, 0.01, 0.001 ]
+      lr_lambda: [ 0.1, 0.5, 0.9 ]
+      num_sample: 0.5
+      num_neg: [128, 256, 512]
+      temperature: [0.1, 0.5, 1.0, 2.0]
+      seed: 123
     external.VBPR:
       meta:
         hyper_opt_alg: grid
