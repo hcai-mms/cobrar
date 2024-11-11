@@ -182,6 +182,12 @@ class SiBraRModel(torch.nn.Module, ABC):
         user_repr, pos_item_repres = self.forward(inputs=(user, pos))
         _, neg_item_repres = self.forward(inputs=(user, neg))
 
+        sampled_modalities_ids = np.random.choice(len(self.item_modalities) + 1, 2, replace=False)
+        # print(sampled_modalities_ids)
+
+        pos_item_repres = pos_item_repres[:, sampled_modalities_ids, :] # shape is [num_users, 2, embedding_dim]
+        neg_item_repres = neg_item_repres[:, sampled_modalities_ids, :]
+
         pos_item_repr = torch.mean(pos_item_repres, dim=-2)
         neg_item_repr = torch.mean(neg_item_repres, dim=-2)
 
@@ -194,13 +200,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         #                                  gamma_i_neg.norm(2).pow(2)) / user.shape[0]
         # loss += reg_loss
 
-        contrastive_modality_ids = np.random.choice(len(self.item_modalities), 2)
-
-        pos_item_modalities = pos_item_repres[:, contrastive_modality_ids, :] # shape is [num_users, 2, embedding_dim]
-        neg_item_modalities = neg_item_repres[:, contrastive_modality_ids, :]
-
-        contrastive_modality_reps = torch.cat((pos_item_modalities, neg_item_modalities), 0) #shape is [2*num_users, 2, embedding_dim]
-
+        contrastive_modality_reps = torch.cat((pos_item_repres, neg_item_repres), 0) #shape is [2*num_users, 2, embedding_dim]
+        # print(contrastive_modality_reps.shape)
         contrastive_loss = self.loss_contrastive(contrastive_modality_reps)
         loss += self.cl_weight * contrastive_loss
 
