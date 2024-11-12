@@ -84,7 +84,7 @@ class VisualAttribute(AbstractLoader):
         all_features = np.empty((len(self.items), self.visual_features_shape))
         if self.visual_feature_folder_path:
             for key, value in self.item_mapping.items():
-                all_features[value] = np.load(self.visual_feature_folder_path + '/' + str(key) + '.npy')
+                all_features[value] = np.load(self.visual_feature_folder_path + '/' + str(key) + '.npy', allow_pickle=True)
         return all_features
 
     def get_all_visual_pca_features(self):

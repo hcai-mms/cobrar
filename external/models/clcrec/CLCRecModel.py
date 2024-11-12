@@ -55,7 +55,13 @@ class CLCRecModel(torch.nn.Module, ABC):
                 freeze=False))
             self.dim_feat += multimodal_features[m_id].shape[1]
 
-        self.id_embedding = torch.nn.Parameter(torch.nn.init.xavier_normal_(torch.rand((self.num_users + self.num_items, self.embed_k)))).to(self.device)
+        self.user_embedding = torch.nn.Embedding(
+            num_embeddings=self.num_users, embedding_dim=self.embed_k).to(self.device)
+        self.item_embedding = torch.nn.Embedding(
+            num_embeddings=self.num_items, embedding_dim=self.embed_k).to(self.device)
+        
+        torch.nn.init.xavier_normal_(self.user_embedding.weight)
+        torch.nn.init.xavier_normal_(self.item_embedding.weight)
 
         self.MLP = torch.nn.Linear(self.embed_k, self.embed_k).to(self.device)
 
@@ -89,18 +95,18 @@ class CLCRecModel(torch.nn.Module, ABC):
         neg_tensor = torch.tensor(neg_tensor).to(self.device)
 
         item_tensor = torch.cat((pos_tensor, neg_tensor[:, 0]), dim=1)
-        user_tensor = user_tensor.repeat(1, 1+self.num_neg).view(-1, 1).squeeze()
-        pos_tensor = pos_tensor.repeat(1, 1+self.num_neg).view(-1, 1).squeeze()
+        user_tensor = user_tensor.repeat(1, 1 + self.num_neg).view(-1, 1).squeeze()
+        pos_tensor = pos_tensor.repeat(1, 1 + self.num_neg).view(-1, 1).squeeze()
         
         user_tensor = user_tensor.view(-1, 1).squeeze()
         item_tensor = item_tensor.view(-1, 1).squeeze()
 
         feature = self.encode_features(self.modalities)
-        all_item_feat = feature[item_tensor-self.num_users]
+        all_item_feat = feature[item_tensor]
 
-        user_embedding = self.id_embedding[user_tensor]
-        pos_item_embedding = self.id_embedding[pos_tensor]
-        all_item_embedding = self.id_embedding[item_tensor]
+        user_embedding = self.user_embedding(user_tensor)
+        pos_item_embedding = self.item_embedding(pos_tensor)
+        all_item_embedding = self.item_embedding(item_tensor)
         
         head_feat = F.normalize(all_item_feat, dim=1)
         head_embed = F.normalize(pos_item_embedding, dim=1)
@@ -112,7 +118,7 @@ class CLCRecModel(torch.nn.Module, ABC):
         self.contrastive_loss_1 = self.loss_contrastive(head_embed, head_feat, self.temperature)
         self.contrastive_loss_2 = self.loss_contrastive(user_embedding, all_item_input, self.temperature)
 
-        cl_loss = self.contrastive_loss_1*self.lr_lambda+(self.contrastive_loss_2)*(1-self.lr_lambda)
+        cl_loss = self.contrastive_loss_1 * self.lr_lambda + (self.contrastive_loss_2) * (1 - self.lr_lambda)
         reg_loss = ((torch.sqrt((user_embedding**2).sum(1))).mean()+(torch.sqrt((all_item_embedding**2).sum(1))).mean())/2
 
         return cl_loss, reg_loss
@@ -127,8 +133,8 @@ class CLCRecModel(torch.nn.Module, ABC):
         return contrastive_loss
 
     def predict(self, start_user, stop_user, **kwargs):
-        return torch.matmul(self.id_embedding[start_user:stop_user].to(self.device),
-                            torch.transpose(self.id_embedding[self.num_users:], 0, 1))
+        return torch.matmul(self.user_embedding.weight[start_user:stop_user].to(self.device),
+                            torch.transpose(self.item_embedding.weight, 0, 1))
 
     def train_step(self, batch):
         user, pos, neg = batch

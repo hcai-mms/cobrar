@@ -56,5 +56,5 @@ class TextualAttribute(AbstractLoader):
         all_features = np.empty((len(self.items), self.textual_features_shape))
         if self.textual_feature_folder_path:
             for key, value in self.item_mapping.items():
-                all_features[value] = np.load(self.textual_feature_folder_path + '/' + str(key) + '.npy')
+                all_features[value] = np.load(self.textual_feature_folder_path + '/' + str(key) + '.npy', allow_pickle=True)
         return all_features

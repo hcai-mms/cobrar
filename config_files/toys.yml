@@ -8,7 +8,7 @@ experiment:
         visual_features: ../data/{0}/image_feat
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/text_feat
-  dataset: office
+  dataset: toys
   prefiltering:
     strategy: iterative_k_core
     core: 5
@@ -41,7 +41,7 @@ experiment:
       modalities: ('visual', 'textual')
       epochs: 200
       factors: 64
-      batch_size: 1024
+      batch_size: [512, 1024]
       reg_weight: [ 0.1, 0.01, 0.001 ]
       lr_lambda: [ 0.1, 0.5, 0.9 ]
       num_sample: 0.5
