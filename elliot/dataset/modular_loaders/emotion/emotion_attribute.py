@@ -23,10 +23,10 @@ class EmotionAttribute(AbstractLoader):
     def get_mapped(self) -> t.Tuple[t.Set[str], t.Set[str]]:
         return self.users, self.items
 
-    def filter(self, users: t.Set[str], items: t.Set[str]):
+    def filter(self, users: t.Set[int], items: t.Set[int]):
         self.users = self.users & users
         self.items = self.items & items
-        self.item_mapping = {item: val for val, item in enumerate(self.items)}
+        self.item_mapping = {int(item): val for val, item in enumerate(self.items)}
 
     def create_namespace(self) -> SimpleNamespace:
         ns = SimpleNamespace()
@@ -44,7 +44,7 @@ class EmotionAttribute(AbstractLoader):
         items = set()
         if self.emotion_feature_folder_path:
             items_folder = os.listdir(self.emotion_feature_folder_path)
-            items = items.union(set([f.split('.')[0] for f in items_folder]))
+            items = items.union(set([int(f.split('.')[0]) for f in items_folder]))
             self.emotion_features_shape = np.load(os.path.join(self.emotion_feature_folder_path,
                                                              items_folder[0])).shape[0]
         return items

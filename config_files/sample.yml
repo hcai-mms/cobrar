@@ -4,6 +4,8 @@ experiment:
     strategy: dataset
     dataset_path: ../data/{0}/interactions.tsv
     side_information:
+      - dataloader: VisualAttribute
+        visual_features: ../data/{0}/visual_embeddings/resnet
       - dataloader: TextualAttribute
         textual_features: ../data/{0}/textual_embeddings/bert
       - dataloader: AudioAttribute
@@ -22,7 +24,7 @@ experiment:
       test_ratio: 0.2
     validation_splitting:
       strategy: random_subsampling
-      test_ratio: 0.2
+      test_ratio: 0.1
   top_k: 20
   evaluation:
     cutoffs: [ 1, 5, 10, 20]
@@ -32,20 +34,49 @@ experiment:
   gpu: 0
   external_models_path: ../external/models/__init__.py
   models:
-    external.CLCRec:
+    external.VBPR:
       meta:
+        hyper_opt_alg: grid
+        verbose: False
         save_weights: False
         save_recs: False
-        verbose: False
         validation_rate: 1
         validation_metric: nDCG@10
-      lr: 0.01
-      multimod_factors: 64
-      reg_weight: 0.01
-      cl_weight: 2.0
-      modalities: ('textual', 'audio', 'emotion')
-      loaders: ('TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
+        restore: False
+      lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+      modalities: [('visual',), ('textual', ), ('audio', ), ('emotion', )]
+      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
       epochs: 200
       factors: 64
       batch_size: 1024
+      l_w: [ 1e-5, 1e-2 ]
+      comb_mod: concat
       seed: 123
+      early_stopping:
+        patience: 5
+        monitor: nDCG@10
+    external.MMGCN:
+      meta:
+        hyper_opt_alg: grid
+        verbose: True
+        save_weights: False
+        save_recs: False
+        validation_rate: 1
+        validation_metric: nDCG@10
+        restore: False
+      lr: [ 0.00001, 0.00003, 0.0001, 0.001, 0.01 ]
+      epochs: 200
+      num_layers: [1, 2, 3]
+      factors: 64
+      factors_multimod: (256, None)
+      batch_size: 1024
+      aggregation: mean
+      concatenation: False
+      has_id: True
+      modalities: [('visual',), ('textual', ), ('audio', ), ('emotion', )]
+      loaders: ('VisualAttribute', 'TextualAttribute', 'AudioAttribute', 'EmotionAttribute')
+      l_w: [ 1e-5, 1e-2 ]
+      seed: 123
+      early_stopping:
+        patience: 5
+        monitor: nDCG@10
