@@ -2,7 +2,7 @@ from elliot.run import run_experiment
 import argparse
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--config', type=str, default='office')
+parser.add_argument('--config', type=str, default='cat_emma')
 args = parser.parse_args()
 
 run_experiment(f"config_files/{args.config}.yml")
