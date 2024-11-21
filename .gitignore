@@ -3,6 +3,7 @@ slurm-*
 results
 data
 data/
+dataset/
 *.npy
 *.tsv
 cmd.txt
