@@ -100,15 +100,15 @@ experiment:
       is_mlp_train: true
       loaders: ('EmotionAttribute', )
       lr:
-      - loguniform
-      - -10
-      - -1
+      - 0.0005
+      - 0.001
+      - 0.005
+      - 0.01
       meta: *id002
       mf_factors:
-      - quniform
       - 8
+      - 16
       - 32
-      - 1
       mlp_factors:
       - 8
       - 16
@@ -174,9 +174,9 @@ experiment:
       meta: *id002
       modalities: ('emotion', )
       num_neg:
+      - 32
+      - 64
       - 128
-      - 256
-      - 512
       num_sample: 0.5
       reg_weight:
       - 0.1

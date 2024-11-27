@@ -43,10 +43,10 @@ experiment:
       update_bias: True
     NeuMF:
       <<: *model_defaults
-      lr: [loguniform, -10, -1]
+      lr: [0.0005, 0.001, 0.005, 0.01]
       batch_size: [128, 256, 512]
       epochs: 50
-      mf_factors: [quniform, 8, 32, 1]
+      mf_factors: [8, 16, 32]
       mlp_factors: [8, 16]
       mlp_hidden_size: [(32, 16, 8), (64, 32, 16)]
       prob_keep_dropout: 0.2
@@ -59,7 +59,7 @@ experiment:
       reg_weight: [ 0.1, 0.01, 0.001 ]
       lr_lambda: [ 0.1, 0.5, 0.9 ]
       num_sample: 0.5
-      num_neg: [128, 256, 512]
+      num_neg: [32, 64, 128]
       temperature: [0.1, 0.5, 1.0, 2.0]
     external.VBPR:
       <<: *model_defaults
