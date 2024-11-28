@@ -1,0 +1,13 @@
+experiment:
+  models:
+    NeuMF:
+      <<: *model_defaults
+      lr: [0.0005, 0.001, 0.005, 0.01]
+      batch_size: [128, 256, 512]
+      epochs: 50
+      mf_factors: [8, 16, 32]
+      mlp_factors: [8, 16]
+      mlp_hidden_size: [(32, 16, 8), (64, 32, 16)]
+      prob_keep_dropout: 0.2
+      is_mf_train: True
+      is_mlp_train: True

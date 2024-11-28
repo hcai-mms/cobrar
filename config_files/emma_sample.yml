@@ -22,7 +22,7 @@ experiment:
   models:
     Random:
       <<: *model_defaults
-    external.MostPop:
+    MostPop:
       <<: *model_defaults
     ItemKNN:
       <<: *model_defaults

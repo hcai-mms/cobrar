@@ -17,7 +17,7 @@ model_defaults: &model_defaults
     patience: 5
     monitor: nDCG@10
 experiment:
-  dataset: emma-sample
+  dataset: emma_sample
   models:
     AttributeItemKNN:
       <<: *model_defaults
