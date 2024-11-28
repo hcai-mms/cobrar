@@ -8,6 +8,7 @@ model_defaults: &model_defaults
     validation_metric: nDCG@10
     restore: False
   epochs: 200
+  batch_size: 512
   factors: 64
   modalities: ('emotion', )
   loaders: ('EmotionAttribute', )

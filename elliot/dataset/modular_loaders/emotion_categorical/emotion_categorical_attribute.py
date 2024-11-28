@@ -9,7 +9,7 @@ from elliot.dataset.modular_loaders.abstract_loader import AbstractLoader
 class EmotionCategoricalAttributes(AbstractLoader):
     def __init__(self, users: t.Set, items: t.Set, ns: SimpleNamespace, logger: object):
         self.logger = logger
-        self.emotion_feature_folder_path = getattr(ns, "emotion_features", None)
+        self.emotion_feature_folder_path = getattr(ns, "emotion_categorical_features", None)
 
         self.users = users
         self.items = items
@@ -39,6 +39,6 @@ class EmotionCategoricalAttributes(AbstractLoader):
         map_ = {}
         for item in items:
             feat = np.load(self.emotion_feature_folder_path + '/' + str(item) + '.npy')
-            cat_feat_list = [i for i, x in enumerate(feat) if x > threshold]
+            cat_feat_list = [i + 1 for i, x in enumerate(feat) if x > threshold] # keep 0 for padding
             map_[item] = cat_feat_list
         return map_

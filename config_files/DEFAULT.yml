@@ -10,8 +10,8 @@ experiment:
       #   textual_features: ../dataset/{0}/textual_embeddings/bert
       # - dataloader: AudioAttribute
       #   audio_features: ../dataset/{0}/audio_embeddings/musicnn
-      # - dataloader: EmotionCategoricalAttributes
-      #   emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
+      - dataloader: EmotionCategoricalAttributes
+        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
       - dataloader: EmotionAttribute
         emotion_features: ../dataset/{0}/emotion_embeddings/gems
   prefiltering:
