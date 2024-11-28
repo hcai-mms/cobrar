@@ -1,3 +1,4 @@
+config_files/merged.yml
 slurm-*
 .vscode
 results
