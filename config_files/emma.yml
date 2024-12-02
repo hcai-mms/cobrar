@@ -20,39 +20,10 @@ model_defaults: &model_defaults
 experiment:
   dataset: emma
   models:
-    Random:
+    external.BPRMF:
       <<: *model_defaults
-    MostPop:
-      <<: *model_defaults
-    ItemKNN:
-      <<: *model_defaults
-      neighbors: [50, 70, 100]
-      similarity: [cosine, euclidean]
-      implementation: standard
-    BPRMF:
-      <<: *model_defaults
-      lr: [0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512]
-      epochs: 50
-      bias_regularization: 0
-      user_regularization: [0.0025, 0.005, 0.01]
-      positive_item_regularization: [0.0025, 0.005, 0.01]
-      negative_item_regularization: [0.00025, 0.0005, 0.001]
-      update_negative_item_factors: True
-      update_users: True
-      update_items: True
-      update_bias: True
-    NeuMF:
-      <<: *model_defaults
-      lr: [0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512]
-      epochs: 50
-      mf_factors: [8, 16, 32]
-      mlp_factors: [8, 16]
-      mlp_hidden_size: [(32, 16, 8), (64, 32, 16)]
-      prob_keep_dropout: 0.2
-      is_mf_train: True
-      is_mlp_train: True
+      lr: [ 0.0005, 0.001, 0.005, 0.01 ]
+      l_w: [ 1e-5, 1e-2, 1e-1 ]
     external.CLCRec:
       <<: *model_defaults
       lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]

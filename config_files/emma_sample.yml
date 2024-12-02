@@ -10,6 +10,7 @@ model_defaults: &model_defaults
   epochs: 200
   batch_size: 512
   factors: 64
+  factors_multimod: 64
   modalities: ('emotion', )
   loaders: ('EmotionAttribute', )
   seed: 123
@@ -20,106 +21,77 @@ model_defaults: &model_defaults
 experiment:
   dataset: emma_sample
   models:
-    Random:
+    external.BPRMF:
       <<: *model_defaults
-    MostPop:
-      <<: *model_defaults
-    ItemKNN:
-      <<: *model_defaults
-      neighbors: [50, 70, 100]
-      similarity: [cosine, euclidean]
-      implementation: standard
-    BPRMF:
-      <<: *model_defaults
-      lr: [0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512]
-      epochs: 50
-      bias_regularization: 0
-      user_regularization: [0.0025, 0.005, 0.01]
-      positive_item_regularization: [0.0025, 0.005, 0.01]
-      negative_item_regularization: [0.00025, 0.0005, 0.001]
-      update_negative_item_factors: True
-      update_users: True
-      update_items: True
-      update_bias: True
-    NeuMF:
-      <<: *model_defaults
-      lr: [0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512]
-      epochs: 50
-      mf_factors: [8, 16, 32]
-      mlp_factors: [8, 16]
-      mlp_hidden_size: [(32, 16, 8), (64, 32, 16)]
-      prob_keep_dropout: 0.2
-      is_mf_train: True
-      is_mlp_train: True
+      lr: [ 0.0005, 0.001, 0.005, 0.01 ]
+      l_w: [ 1e-5, 1e-2, 1e-1 ]
     external.CLCRec:
       <<: *model_defaults
       lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-      batch_size: [512, 1024]
+      batch_size: [ 512, 1024 ]
       reg_weight: [ 0.1, 0.01, 0.001 ]
       lr_lambda: [ 0.1, 0.5, 0.9 ]
       num_sample: 0.5
-      num_neg: [32, 64, 128]
-      temperature: [0.1, 0.5, 1.0, 2.0]
+      num_neg: [ 32, 64, 128 ]
+      temperature: [ 0.1, 0.5, 1.0, 2.0 ]
     external.VBPR:
       <<: *model_defaults
       lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-      batch_size: [512, 1024]
+      batch_size: [ 512, 1024 ]
       l_w: [ 1e-5, 1e-2 ]
       comb_mod: concat
-    # external.MMGCN:
-    #   <<: *model_defaults
-    #   lr: [ 0.00001, 0.00003, 0.0001, 0.001, 0.01 ]
-    #   num_layers: 3
-    #   factors_multimod: (256, None)
-    #   batch_size: 1024
-    #   aggregation: mean
-    #   concatenation: False
-    #   has_id: True
-    #   l_w: [ 1e-5, 1e-2 ]
-    # external.GRCN:
-    #   <<: *model_defaults
-    #   lr: [ 0.0001, 0.001, 0.01, 0.1, 1 ]
-    #   num_layers: 2
-    #   num_routings: 3
-    #   factors_multimod: 128
-    #   batch_size: 1024
-    #   aggregation: add
-    #   weight_mode: confid
-    #   pruning: True
-    #   has_act: False
-    #   fusion_mode: concat
-    #   l_w: [ 1e-5, 1e-2 ]
-    # external.LATTICE:
-    #   <<: *model_defaults
-    #   batch_size: 1024
-    #   lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-    #   l_w: [ 1e-5, 1e-2 ]
-    #   n_layers: 1
-    #   n_ui_layers: 2
-    #   top_k: 20
-    #   l_m: 0.7
-    #   factors_multimod: 64
-    # external.BM3:
-    #   <<: *model_defaults
-    #   lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-    #   multimod_factors: 64
-    #   reg_weight: [0.1, 0.01]
-    #   cl_weight: 2.0
-    #   dropout: 0.3
-    #   n_layers: 2
-    #   lr_sched: (1.0,50)
-    #   batch_size: 1024
-    # external.FREEDOM:
-    #   <<: *model_defaults
-    #   lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
-    #   l_w: [1e-5, 1e-2]
-    #   n_layers: 1
-    #   n_ui_layers: 2
-    #   top_k: 10
-    #   factors_multimod: 64
-    #   mw: (0.1,0.9)
-    #   drop: 0.8
-    #   lr_sched: (1.0,50)
-    #   batch_size: 1024
+    external.MMGCN:
+      <<: *model_defaults
+      lr: [ 0.00001, 0.00003, 0.0001, 0.001, 0.01 ]
+      num_layers: 3
+      factors_multimod: (256, None)
+      batch_size: 1024
+      aggregation: mean
+      concatenation: False
+      has_id: True
+      l_w: [ 1e-5, 1e-2 ]
+    external.GRCN:
+      <<: *model_defaults
+      lr: [ 0.0001, 0.001, 0.01, 0.1, 1 ]
+      num_layers: 2
+      num_routings: 3
+      factors_multimod: 128
+      batch_size: 1024
+      aggregation: add
+      weight_mode: confid
+      pruning: True
+      has_act: False
+      fusion_mode: concat
+      l_w: [ 1e-5, 1e-2 ]
+    external.LATTICE:
+     <<: *model_defaults
+     batch_size: 1024
+     lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+     l_w: [ 1e-5, 1e-2 ]
+     n_layers: 1
+     n_ui_layers: 2
+     top_k: 20
+     l_m: 0.7
+     factors_multimod: 64
+    external.BM3:
+     <<: *model_defaults
+     lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+     multimod_factors: 64
+     reg_weight: [0.1, 0.01]
+     cl_weight: 2.0
+     dropout: 0.3
+     n_layers: 2
+     lr_sched: (1.0,50)
+     batch_size: 1024
+    external.FREEDOM:
+     <<: *model_defaults
+     lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
+     l_w: [1e-5, 1e-2]
+     n_layers: 1
+     n_ui_layers: 2
+     top_k: 10
+     factors_multimod: 64
+     mw: (0.1,0.9)
+     drop: 0.8
+     lr_sched: (1.0,50)
+     batch_size: 1024

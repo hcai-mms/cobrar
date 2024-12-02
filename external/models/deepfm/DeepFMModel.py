@@ -37,7 +37,6 @@ class DeepFMModel(nn.Module):
         torch.cuda.manual_seed(random_seed)
         torch.cuda.manual_seed_all(random_seed)
         torch.backends.cudnn.deterministic = True
-        torch.use_deterministic_algorithms(True)
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

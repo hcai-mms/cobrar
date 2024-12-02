@@ -17,9 +17,15 @@ model_defaults: &model_defaults
     patience: 5
     monitor: nDCG@10
 experiment:
-  dataset: emma
+  dataset: emma_sample
   models:
-    external.DeepFM:
+    AttributeItemKNN:
+      <<: *model_defaults
+      neighbors: [ 50, 70, 100 ]
+      similarity: [ cosine, euclidean ]
+      implementation: standard
+    FM:
       <<: *model_defaults
       factors: [10, 20]
       lr: 0.001
+      reg: 0.1
