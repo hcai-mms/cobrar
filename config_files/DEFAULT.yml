@@ -18,8 +18,8 @@ experiment:
     strategy: iterative_k_core
     core: 5
   splitting:
-    save_on_disk: True
-    save_folder: ../data/{0}/splits
+    #save_on_disk: True
+    #save_folder: ../dataset/{0}/splits
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2
