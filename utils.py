@@ -20,6 +20,17 @@ def merge_yaml(base_file, extended_file):
     merged_data = deep_merge(base_data, extended_data)
     return merged_data
 
+def merge_yamls(file_paths):
+    if not file_paths:
+        return {}
+
+    merged_data = load_yaml(file_paths[0])
+    for file_path in file_paths[1:]:
+        data = load_yaml(file_path)
+        merged_data = deep_merge(merged_data, data)
+    
+    return merged_data
+
 def save_yaml(data, file_path):
     with open(file_path, 'w') as file:
         yaml.dump(data, file, default_flow_style=False)

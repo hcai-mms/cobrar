@@ -1,0 +1,12 @@
+experiment:
+  backend: pytorch
+  models:
+    external.BM3:
+      lr: [0.0001, 0.0005, 0.001, 0.005, 0.01]
+      multimod_factors: 64
+      reg_weight: [0.1, 0.01]
+      cl_weight: 2.0
+      dropout: 0.3
+      n_layers: 2
+      lr_sched: (1.0, 50)
+      batch_size: 1024

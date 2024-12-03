@@ -27,9 +27,9 @@ class EmbeddingLayer(nn.Module):
 
         return user_emb, item_emb, feature_emb
 
-class DeepFMModel(nn.Module):
-    def __init__(self, num_users, num_items, num_features, embed_dim, hidden_units, n_layers, dropout_rate, learning_rate, random_seed):
-        super(DeepFMModel, self).__init__()
+class FactorizationMachineModel(nn.Module):
+    def __init__(self, num_users, num_items, num_features, embed_dim, learning_rate, random_seed):
+        super(FactorizationMachineModel, self).__init__()
         # set seed
         random.seed(random_seed)
         np.random.seed(random_seed)
@@ -52,17 +52,6 @@ class DeepFMModel(nn.Module):
         self.linear = nn.Embedding(self.field_dims, 1).to(self.device)
         nn.init.normal_(self.linear.weight, mean=0, std=0.01)
 
-        # Deep Component
-        deep_input_dim = embed_dim * (self.num_features + 1)
-        deep_modules = []
-        for l in range(n_layers):
-            deep_modules.append(nn.Linear(deep_input_dim, hidden_units))
-            deep_modules.append(nn.ReLU())
-            deep_modules.append(nn.Dropout(dropout_rate))
-            deep_input_dim = hidden_units
-        deep_modules.append(nn.Linear(hidden_units, 1))
-        self.deep = nn.Sequential(*deep_modules).to(self.device)
-
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, user, item, features):
@@ -84,10 +73,7 @@ class DeepFMModel(nn.Module):
         interaction_part = 0.5 * torch.sum(sum_squared - squared_sum, dim=1, keepdim=True)
         fm_part = linear_part + interaction_part
 
-        # Deep Component
-        deep_part = self.deep(feats.flatten(start_dim=1))
-
-        return torch.sigmoid(fm_part + deep_part).squeeze()
+        return torch.sigmoid(fm_part).squeeze()
 
     def predict(self, start_user, stop_user, item_feat, **kwargs):
         """

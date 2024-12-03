@@ -9,41 +9,11 @@ from elliot.dataset.samplers import pointwise_pos_neg_sampler as pws
 from elliot.recommender import BaseRecommenderModel
 from elliot.recommender.base_recommender_model import init_charger
 from elliot.recommender.recommender_utils_mixin import RecMixin
-from .DeepFMModel import DeepFMModel
+from .FactorizationMachineModel import FactorizationMachineModel
 
 
-class DeepFM(RecMixin, BaseRecommenderModel):
-    r"""
-    DeepFM: A Factorization-Machine based Neural Network for CTR Prediction
+class FactorizationMachine(RecMixin, BaseRecommenderModel):
 
-    For further details, please refer to the `paper <https://arxiv.org/abs/1703.04247>`_
-
-    Args:
-        lr: Learning rate
-        epochs: Number of epochs
-        embed_dim: Embedding dimension for features
-        deep_layers: List of sizes for deep layers
-        dropout_rate: Dropout rate for deep layers
-        batch_size: Batch size
-        l_w: Regularization coefficient
-
-    To include the recommendation model, add it to the config file adopting the following pattern:
-
-    .. code:: yaml
-
-      models:
-        DeepFM:
-          meta:
-            save_recs: True
-          lr: 0.001
-          epochs: 50
-          embed_dim: 16
-          n_layers: 3
-          hidden_units: 64
-          dropout_rate: 0.2
-          batch_size: 256
-          l_w: 0.1
-    """
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
         ######################################
@@ -51,8 +21,6 @@ class DeepFM(RecMixin, BaseRecommenderModel):
         self._params_list = [
             ("_learning_rate", "lr", "lr", 0.001, float, None),
             ("_factors", "factors", "factors", 64, int, None),
-            ("_n_layers", "n_layers", "n_layers", 3, int, None),
-            ("_hidden_units", "hidden_units", "hidden_units", 64, int, None),
             ("_dropout_rate", "dropout_rate", "dropout_rate", 0.0, float, None),
             ("_batch_size", "batch_size", "batch_size", 512, int, None),
             ("_l_w", "l_w", "l_w", 0.01, float, None),
@@ -80,14 +48,11 @@ class DeepFM(RecMixin, BaseRecommenderModel):
 
         self._sampler = pws.Sampler(self._data.i_train_dict)
 
-        self._model = DeepFMModel(
+        self._model = FactorizationMachineModel(
             self._num_users,
             self._num_items,
             self._nfeatures,
             embed_dim=self._factors,
-            hidden_units=self._hidden_units,
-            n_layers=self._n_layers,
-            dropout_rate=self._dropout_rate,
             learning_rate=self._learning_rate,
             random_seed=self._seed,
         )

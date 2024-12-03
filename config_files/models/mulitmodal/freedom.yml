@@ -1,0 +1,14 @@
+experiment:
+  backend: pytorch
+  models:
+    external.FREEDOM:
+      lr: [0.0001, 0.0005, 0.001, 0.005, 0.01]
+      l_w: [1e-5, 1e-2]
+      n_layers: 1
+      n_ui_layers: 2
+      top_k: 10
+      factors_multimod: 64
+      mw: (0.1, 0.9)
+      drop: 0.8
+      lr_sched: (1.0, 50)
+      batch_size: 1024

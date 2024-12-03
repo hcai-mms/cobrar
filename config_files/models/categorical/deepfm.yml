@@ -1,0 +1,8 @@
+experiment:
+  backend: pytorch
+  models:
+    external.DeepFM:
+      factors: [10, 20]
+      n_layers: [1, 2, 3]
+      hidden_units: [32, 64]
+      lr: [0.0005, 0.001, 0.005, 0.01]

@@ -3,8 +3,10 @@ import argparse
 from utils import merge_yaml, save_yaml
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--config', type=str, default='emma_sample')
+parser.add_argument('--config', type=str, default='emma_cat_sample_2')
 args = parser.parse_args()
+
+print(f"Running experiment with config: {args.config}")
 
 base_config = 'config_files/DEFAULT.yml'
 extended_config = f"config_files/{args.config}.yml"

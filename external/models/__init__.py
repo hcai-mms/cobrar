@@ -26,3 +26,4 @@ for _backend in sys.modules["external"].backend:
         from .bm3.BM3 import BM3
         from .clcrec.CLCRec import CLCRec
         from .deepfm.DeepFM import DeepFM
+        from .fm.FactorizationMachine import FactorizationMachine

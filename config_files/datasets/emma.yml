@@ -1,15 +1,30 @@
+model_defaults: &model_defaults
+  meta:
+    hyper_opt_alg: grid
+    verbose: False
+    save_weights: False
+    save_recs: False
+    validation_rate: 1
+    validation_metric: nDCG@10
+    restore: False
+  epochs: 200
+  batch_size: 512
+  factors: 64
+  factors_multimod: 64
+  modalities: ('emotion', )
+  loaders: ('EmotionAttribute', )
+  seed: 123
+  early_stopping:
+    verbose: False
+    patience: 5
+    monitor: nDCG@10
 experiment:
+  dataset: emma
   #backend: pytorch
   data_config:
     strategy: dataset
     dataset_path: ../dataset/{0}/interactions.tsv
     side_information:
-      # - dataloader: VisualAttribute
-      #   visual_features: ../dataset/{0}/visual_embeddings/resnet
-      # - dataloader: TextualAttribute
-      #   textual_features: ../dataset/{0}/textual_embeddings/bert
-      # - dataloader: AudioAttribute
-      #   audio_features: ../dataset/{0}/audio_embeddings/musicnn
       - dataloader: EmotionCategoricalAttributes
         emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
       - dataloader: EmotionAttribute

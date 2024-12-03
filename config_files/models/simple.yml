@@ -1,0 +1,10 @@
+experiment:
+  models:
+    Random:
+      random_seed: 123
+    MostPop:
+      random_seed: 123
+    ItemKNN:
+      neighbors: [50, 70, 100]
+      similarity: [cosine, euclidean]
+      implementation: standard
