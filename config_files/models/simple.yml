@@ -4,10 +4,10 @@ experiment:
       random_seed: 123
     MostPop:
       random_seed: 123
-    UserKNN:
-      neighbors: [20, 50, 70, 100]
-      similarity: [cosine, euclidean]
-      implementation: aiolli
+    # UserKNN:
+    #   neighbors: [20, 50, 70, 100]
+    #   similarity: [cosine, euclidean]
+    #   implementation: aiolli
     ItemKNN:
       neighbors: [20, 50, 70, 100]
       similarity: [cosine, euclidean]

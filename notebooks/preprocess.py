@@ -39,12 +39,24 @@ sample_items = df_interactions['track_id'].unique()
 df_interactions['user_id_int'] = df_interactions['user_id'].astype('category').cat.codes
 df_interactions['track_id_int'] = df_interactions['track_id'].astype('category').cat.codes
 
-#df_interactions[['user_id', 'track_id', 'rating', 'timestamp']].to_csv(os.path.join(output_dir, 'interactions.tsv'), index=False, sep='\t', header=False)
-df_interactions[['user_id_int', 'track_id_int', 'rating', 'timestamp']].to_csv(os.path.join(output_dir, 'interactions.tsv'), index=False, sep='\t', header=False)
-
 
 print(df_interactions.shape)
 df_interactions.head()
+
+# %%
+# track ids from feature file
+df = pd.read_csv(input_data_dir + features['emotion_embeddings'][0], sep='\t')
+feat_track_ids = df['id'].values
+feat_track_ids
+
+# %%
+# remove interactions with items not in the feature files
+df_interactions = df_interactions[df_interactions['track_id'].isin(feat_track_ids)]
+df_interactions.shape
+
+# %%
+#df_interactions[['user_id', 'track_id', 'rating', 'timestamp']].to_csv(os.path.join(output_dir, 'interactions.tsv'), index=False, sep='\t', header=False)
+df_interactions[['user_id_int', 'track_id_int', 'rating', 'timestamp']].to_csv(os.path.join(output_dir, 'interactions.tsv'), index=False, sep='\t', header=False)
 
 # %%
 item_id_map = df_interactions[['track_id', 'track_id_int']].drop_duplicates()
