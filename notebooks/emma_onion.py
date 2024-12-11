@@ -6,12 +6,7 @@ import tqdm
 import shutil
 
 # %%
-# check how many rows in file
-# !wc -l ../data/m4a/userid_trackid_timestamp_m4a.tsv
-# 252984397
-
-# %%
-df_interactions = pd.read_csv('../data/userid_trackid_timestamp_m4a.tsv', sep='\t')#, nrows=1e7) # TODO full
+df_interactions = pd.read_csv('../data/userid_trackid_timestamp.tsv', sep='\t')
 print(df_interactions.shape)
 df_interactions.head()
 

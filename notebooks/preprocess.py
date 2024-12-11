@@ -9,7 +9,7 @@ import shutil
 sample = False
 sample_size = 3e5
 
-dataset = 'm4a' # m4a or emma
+dataset = 'onion' # onion or emma
 input_data_dir = f'../data/'
 
 features = {

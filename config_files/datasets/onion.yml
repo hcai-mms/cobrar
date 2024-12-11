@@ -19,7 +19,7 @@ model_defaults: &model_defaults
     patience: 5
     monitor: nDCG@10
 experiment:
-  dataset: m4a_sample
+  dataset: onion
   #backend: pytorch
   data_config:
     strategy: dataset
