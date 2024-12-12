@@ -59,7 +59,7 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
 
     @property
     def name(self):
-        return "DeepFM" \
+        return "FM" \
                + f"_{self.get_base_params_shortcut()}" \
                + f"_{self.get_params_shortcut()}"
 
