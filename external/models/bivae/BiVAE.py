@@ -1,65 +1,71 @@
-from tqdm import tqdm
-import numpy as np
 import torch
 import os
-import math
+import numpy as np
+from tqdm import tqdm
+from ast import literal_eval as make_tuple
 
 from elliot.utils.write import store_recommendation
-from elliot.dataset.samplers import pointwise_pos_neg_sampler as pws
+
 from elliot.recommender import BaseRecommenderModel
-from elliot.recommender.base_recommender_model import init_charger
+from .BiVAEModel import BiVAECFModel
+from .custom_sampler import Sampler
 from elliot.recommender.recommender_utils_mixin import RecMixin
-from .FactorizationMachineModel import FactorizationMachineModel
+from elliot.recommender.base_recommender_model import init_charger
 
 
-class FactorizationMachine(RecMixin, BaseRecommenderModel):
-
+class BiVAE(RecMixin, BaseRecommenderModel):
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
-        ######################################
-
         self._params_list = [
-            ("_learning_rate", "lr", "lr", 0.001, float, None),
+            ("_learning_rate", "lr", "lr", 0.0005, float, None),
             ("_factors", "factors", "factors", 64, int, None),
-            ("_dropout_rate", "dropout_rate", "dropout_rate", 0.0, float, None),
-            ("_batch_size", "batch_size", "batch_size", 512, int, None),
-            ("_l_w", "l_w", "l_w", 0.01, float, None),
-            ("_loader", "loader", "load", "ItemAttributes", None, None),
+            ("_num_neg", "num_neg", "num_neg", 128, int, None),
+            ("_num_sample", "num_sample", "num_sample", 0.5, float, None),
+            ("_temperature", "temperature", "temperature", 1.0, float, None),
+            ("_reg_weight", "reg_weight", "reg_weight", 0.01, float, None),
+            ("_lr_lambda", "lr_lambda", "lr_lambda", 0.5, float, None),
+            ("_multimod_factors", "multimod_factors", "multimod_factors", 64, int, None),
+            ("_modalities", "modalities", "modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
+             lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
+            ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
+             lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
         ]
         self.autoset_params()
 
         if self._batch_size < 1:
             self._batch_size = self._data.transactions
 
-        self._ratings = self._data.train_dict
+        self._sampler = Sampler(self._data.i_train_dict, self._num_neg, self._seed)
 
-        self._side = getattr(self._data.side_information, self._loader, None)
+        for m_id, m in enumerate(self._modalities):
+            self.__setattr__(f'''_side_{m}''',
+                             self._data.side_information.__getattribute__(f'''{self._loaders[m_id]}'''))
 
-        self._sp_i_train = self._data.sp_i_train
-        self._i_items_set = list(range(self._num_items))
+        all_multimodal_features = []
+        for m_id, m in enumerate(self._modalities):
+            all_multimodal_features.append(self.__getattribute__(
+                f'''_side_{self._modalities[m_id]}''').object.get_all_features())
 
-        if (hasattr(self._side, "nfeatures")) and (hasattr(self._side, "feature_map")):
-            self._nfeatures = self._side.nfeatures
-            self._item_array = self.get_item_fragment()
-        else:
-            self._nfeatures = 0
-
-        self._field_dims = [self._num_users, self._num_items, self._nfeatures]
-
-        self._sampler = pws.Sampler(self._data.i_train_dict)
-
-        self._model = FactorizationMachineModel(
-            self._num_users,
-            self._num_items,
-            self._nfeatures,
-            embed_dim=self._factors,
+        self._model = BiVAECFModel(
+            num_users=self._num_users,
+            num_items=self._num_items,
             learning_rate=self._learning_rate,
-            random_seed=self._seed,
+            embed_k=self._factors,
+            num_neg=self._num_neg,
+            num_sample=self._num_sample,
+            lr_lambda=self._lr_lambda,
+            reg_weight=self._reg_weight,
+            temperature=self._temperature,
+            cap_item_priors=False, # TODO
+            modalities=self._modalities,
+            multimod_embed_k=self._multimod_factors,
+            multimodal_features=all_multimodal_features,
+            random_seed=self._seed
         )
 
     @property
     def name(self):
-        return "FM" \
+        return "BiVAECF" \
                + f"_{self.get_base_params_shortcut()}" \
                + f"_{self.get_params_shortcut()}"
 
@@ -67,14 +73,25 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
         if self._restore:
             return self.restore_weights()
 
+        x = self._data.sp_i_train.copy()
+        x.data = np.ones_like(x.data)  # Binarize data
+        tx = x.transpose()
+
         for it in self.iterate(self._epochs):
             loss = 0
             steps = 0
-            with tqdm(total=int(self._data.transactions // self._batch_size), disable=not self._verbose) as t:
-                for batch in self._sampler.step(self._data.transactions, self._batch_size):
+            with tqdm(total=int(self._data.num_items + self._data.num_users // self._batch_size), disable=not self._verbose) as t:
+                for i_ids in self._sampler.item_iter(self._batch_size, shuffle=False):
                     steps += 1
-                    batch = self.prepare_fm_transaction(batch)
-                    loss += self._model.train_step(batch)
+                    loss += self._model.train_step(tx, i_ids, user=False)
+
+                    t.set_postfix({'loss': f'{loss / steps:.5f}'})
+                    t.update()
+
+                for u_ids in self._sampler.user_iter(self._batch_size, shuffle=False):
+                    steps += 1
+                    loss += self._model.train_step(x, u_ids, user=True)
+
                     t.set_postfix({'loss': f'{loss / steps:.5f}'})
                     t.update()
 
@@ -85,7 +102,7 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
         predictions_top_k_val = {}
         for index, offset in enumerate(range(0, self._num_users, self._batch_size)):
             offset_stop = min(offset + self._batch_size, self._num_users)
-            predictions = self._model.predict(offset, offset_stop, self._item_array)
+            predictions = self._model.predict(offset, offset_stop)
             recs_val, recs_test = self.process_protocol(k, predictions, offset, offset_stop)
             predictions_top_k_val.update(recs_val)
             predictions_top_k_test.update(recs_test)
@@ -107,7 +124,7 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
             self._results.append(result_dict)
 
             if it is not None:
-                self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss/(it + 1):.5f}')
+                self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss / (it + 1):.5f}')
             else:
                 self.logger.info(f'Finished')
 
@@ -147,24 +164,3 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
             raise Exception(f"Error in model restoring operation! {ex}")
 
         return False
-
-    def get_item_fragment(self):
-        if not self._nfeatures:
-            return []
-
-        item_features_list = []
-        max_features = max(
-            len(self._side.feature_map[item]) for item in range(self._num_items))
-        padding_value = 0
-
-        for item in range(self._num_items):
-            i_features = self._side.feature_map[item]
-
-            # Pad the list to the maximum feature length
-            padded_features = i_features + [padding_value] * (max_features - len(i_features))
-            item_features_list.append(padded_features)
-
-        return np.array(item_features_list, dtype=np.int32)
-
-    def prepare_fm_transaction(self, batch):
-        return batch[0], batch[1], self._item_array[batch[1]], batch[2]
