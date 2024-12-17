@@ -154,13 +154,11 @@ class FactorizationMachine(RecMixin, BaseRecommenderModel):
 
         item_features_list = []
         max_features = max(
-            len(self._side.feature_map[self._data.private_items[item]]) for item in range(self._num_items))
-        padding_value = max_features + 1
+            len(self._side.feature_map[item]) for item in range(self._num_items))
+        padding_value = 0
 
         for item in range(self._num_items):
-            # Get the list of features for the item
-            i_features = [self._side.public_features[f] for f in
-                          self._side.feature_map[self._data.private_items[item]]]
+            i_features = self._side.feature_map[item]
 
             # Pad the list to the maximum feature length
             padded_features = i_features + [padding_value] * (max_features - len(i_features))
