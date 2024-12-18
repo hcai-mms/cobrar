@@ -2,7 +2,7 @@ import numpy as np
 import random
 
 class Sampler:
-    def __init__(self, indexed_ratings, num_neg=128, seed=42):
+    def __init__(self, indexed_ratings, seed=42):
         np.random.seed(seed)
         self._indexed_ratings = indexed_ratings
         self._users = list(self._indexed_ratings.keys())
@@ -11,7 +11,6 @@ class Sampler:
         self._nitems = len(self._items)
         self._ui_dict = {u: list(set(indexed_ratings[u])) for u in indexed_ratings}
         self._lui_dict = {u: len(v) for u, v in self._ui_dict.items()}
-        self.num_neg = num_neg
         self.all_set = set(self._items)
         self.user_item_dict = {u: set(indexed_ratings[u]) for u in indexed_ratings}
 

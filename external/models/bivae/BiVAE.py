@@ -18,48 +18,31 @@ class BiVAE(RecMixin, BaseRecommenderModel):
     def __init__(self, data, config, params, *args, **kwargs):
         self._params_list = [
             ("_learning_rate", "lr", "lr", 0.0005, float, None),
-            ("_factors", "factors", "factors", 64, int, None),
-            ("_num_neg", "num_neg", "num_neg", 128, int, None),
-            ("_num_sample", "num_sample", "num_sample", 0.5, float, None),
-            ("_temperature", "temperature", "temperature", 1.0, float, None),
-            ("_reg_weight", "reg_weight", "reg_weight", 0.01, float, None),
-            ("_lr_lambda", "lr_lambda", "lr_lambda", 0.5, float, None),
-            ("_multimod_factors", "multimod_factors", "multimod_factors", 64, int, None),
-            ("_modalities", "modalities", "modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
-             lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
-            ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
-             lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
+            ("_k", "k", "k", 10, int, None),
+            ("_beta_kl", "beta_kl", "beta_kl", 1.0, float, None),
+            ("_cap_item_priors", "cap_item_priors", "cap_item_priors", 1.0, bool, None),
+            ("_loader", "loader", "load", "EmotionAttribute", None, None)
         ]
         self.autoset_params()
 
         if self._batch_size < 1:
             self._batch_size = self._data.transactions
 
-        self._sampler = Sampler(self._data.i_train_dict, self._num_neg, self._seed)
+        self._sampler = Sampler(self._data.i_train_dict, self._seed)
 
-        for m_id, m in enumerate(self._modalities):
-            self.__setattr__(f'''_side_{m}''',
-                             self._data.side_information.__getattribute__(f'''{self._loaders[m_id]}'''))
+        self._side = getattr(self._data.side_information, self._loader, None)
 
-        all_multimodal_features = []
-        for m_id, m in enumerate(self._modalities):
-            all_multimodal_features.append(self.__getattribute__(
-                f'''_side_{self._modalities[m_id]}''').object.get_all_features())
+        self._i_features = self._side.object.get_all_features()
 
         self._model = BiVAECFModel(
             num_users=self._num_users,
             num_items=self._num_items,
             learning_rate=self._learning_rate,
-            embed_k=self._factors,
-            num_neg=self._num_neg,
-            num_sample=self._num_sample,
-            lr_lambda=self._lr_lambda,
-            reg_weight=self._reg_weight,
-            temperature=self._temperature,
-            cap_item_priors=False, # TODO
-            modalities=self._modalities,
-            multimod_embed_k=self._multimod_factors,
-            multimodal_features=all_multimodal_features,
+            beta_kl=self._beta_kl,
+            cap_item_priors=self._cap_item_priors,
+            item_features=self._i_features,
+            encoder_structure=[20],
+            k=self._k,
             random_seed=self._seed
         )
 

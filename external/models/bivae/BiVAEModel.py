@@ -22,10 +22,9 @@ class BiVAECFModel(torch.nn.Module, ABC):
                  num_users,
                  num_items,
                  learning_rate,
+                 beta_kl,
                  cap_item_priors,
-                 modalities,
-                 multimodal_features,
-                 multimod_embed_k,
+                 item_features,
                  random_seed,
                  encoder_structure=[20],
                  k=10,
@@ -50,20 +49,11 @@ class BiVAECFModel(torch.nn.Module, ABC):
         self.num_items = num_items
 
         self.learning_rate = learning_rate
-        self.modalities = modalities
         self.cap_item_priors = cap_item_priors
-        self.beta_kl = 1.0
+        self.beta_kl = beta_kl
 
         self.item_encoder_structure = [num_users] + encoder_structure
         self.user_encoder_structure = [num_items] + encoder_structure
-
-        self.dim_feat = 0
-        self.F = torch.nn.ParameterList()
-        for m_id, m in enumerate(self.modalities):
-            self.F.append(torch.nn.Embedding.from_pretrained(torch.tensor(
-                multimodal_features[m_id], device=self.device, dtype=torch.float32),
-                freeze=False))
-            self.dim_feat += multimodal_features[m_id].shape[1]
 
         self.mu_theta = torch.zeros((self.item_encoder_structure[0], k)).to(self.device)  # n_items*k
         self.mu_beta = torch.zeros((self.user_encoder_structure[0], k)).to(self.device)  # n_users*k
@@ -78,7 +68,8 @@ class BiVAECFModel(torch.nn.Module, ABC):
             raise ValueError("Supported act_fn: {}".format(ACT.keys()))
 
         if cap_item_priors:
-            self.item_prior_encoder = nn.Linear(multimod_embed_k, k)
+            self.item_features = torch.FloatTensor(item_features)
+            self.item_prior_encoder = nn.Linear(item_features.shape[1], k)
 
         # User Encoder
         self.user_encoder = nn.Sequential()
@@ -116,7 +107,6 @@ class BiVAECFModel(torch.nn.Module, ABC):
 
         if cap_item_priors:
             item_params = it.chain(item_params, self.item_prior_encoder.parameters())
-            item_features = self.item_feature.features[: num_items]
 
         self.u_optimizer = torch.optim.Adam(params=user_params, lr=self.learning_rate)
         self.i_optimizer = torch.optim.Adam(params=item_params, lr=self.learning_rate)
@@ -194,7 +184,7 @@ class BiVAECFModel(torch.nn.Module, ABC):
 
             i_mu_prior = 0.0
             if not user and self.cap_item_priors:
-                i_batch_f = item_features[i_ids]
+                i_batch_f = self.item_features[ids].to(self.device)
                 i_mu_prior = self.encode_item_prior(i_batch_f)
 
             loss = self.loss(batch, i_batch_, i_mu, i_mu_prior, i_std, self.beta_kl)
