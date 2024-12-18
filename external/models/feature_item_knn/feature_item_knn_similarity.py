@@ -75,21 +75,17 @@ class Similarity(object):
 
     def process_similarity(self, similarity):
         if similarity == "cosine":
-            self._similarity_matrix = cosine_similarity(self._attribute_matrix)
+            self._att_similarity_matrix = cosine_similarity(self._attribute_matrix)
+            self._urm_similarity_matrix = cosine_similarity(self._URM.T)
+            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
         elif similarity == "dot":
-            self._similarity_matrix = (self._attribute_matrix @ self._attribute_matrix.T).toarray()
+            self._att_similarity_matrix = (self._attribute_matrix @ self._attribute_matrix.T)
+            self._urm_similarity_matrix = (self._URM.T @ self._URM).toarray()
+            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
         elif similarity == "euclidean":
-            self._similarity_matrix = (1 / (1 + euclidean_distances(self._attribute_matrix)))
-        elif similarity == "manhattan":
-            self._similarity_matrix = (1 / (1 + manhattan_distances(self._attribute_matrix)))
-        elif similarity == "haversine":
-            self._similarity_matrix = (1 / (1 + haversine_distances(self._attribute_matrix)))
-        elif similarity == "chi2":
-            self._similarity_matrix = (1 / (1 + chi2_kernel(self._attribute_matrix)))
-        elif similarity in ['cityblock', 'l1', 'l2']:
-            self._similarity_matrix = (1 / (1 + pairwise_distances(self._attribute_matrix, metric=similarity)))
-        elif similarity in ['braycurtis', 'canberra', 'chebyshev', 'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski', 'mahalanobis', 'minkowski', 'rogerstanimoto', 'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath', 'sqeuclidean', 'yule']:
-            self._similarity_matrix = (1 / (1 + pairwise_distances(self._attribute_matrix.toarray(), metric=similarity)))
+            self._att_similarity_matrix = (1 / (1 + euclidean_distances(self._attribute_matrix)))
+            self._urm_similarity_matrix = (1 / (1 + euclidean_distances(self._URM.T)))
+            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
         else:
             raise Exception("Not implemented similarity")
 

@@ -2,5 +2,5 @@ experiment:
   models:
     external.FeatureItemKNN:
       neighbors: [ 50, 70, 100 ]
-      similarity: [ cosine, euclidean ]
+      similarity: [ cosine, dot, euclidean ]
       implementation: standard
