@@ -120,7 +120,7 @@ class DeepFM(RecMixin, BaseRecommenderModel):
         predictions_top_k_val = {}
         for index, offset in enumerate(range(0, self._num_users, self._batch_size)):
             offset_stop = min(offset + self._batch_size, self._num_users)
-            predictions = self._model.predict(offset, offset_stop, self._item_array)
+            predictions = self._model.predict(offset, offset_stop, self._item_array, self._batch_size)
             recs_val, recs_test = self.process_protocol(k, predictions, offset, offset_stop)
             predictions_top_k_val.update(recs_val)
             predictions_top_k_test.update(recs_test)
@@ -188,15 +188,13 @@ class DeepFM(RecMixin, BaseRecommenderModel):
             return []
 
         item_features_list = []
-        max_features = max(
-            len(self._side.feature_map[item]) for item in range(self._num_items))
         padding_value = 0
 
         for item in range(self._num_items):
             i_features = self._side.feature_map[item]
 
             # Pad the list to the maximum feature length
-            padded_features = i_features + [padding_value] * (max_features - len(i_features))
+            padded_features = i_features + [padding_value] * (self._nfeatures - len(i_features))
             item_features_list.append(padded_features)
 
         return np.array(item_features_list, dtype=np.int32)

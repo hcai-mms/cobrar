@@ -72,7 +72,7 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
 
     @property
     def name(self):
-        return f"AttributeItemKNN_{self.get_params_shortcut()}"
+        return f"FeatureItemKNN_{self.get_params_shortcut()}"
 
     def train(self):
         if self._restore:

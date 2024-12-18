@@ -75,21 +75,27 @@ class FactorizationMachineModel(nn.Module):
 
         return torch.sigmoid(fm_part).squeeze()
 
-    def predict(self, start_user, stop_user, item_feat, **kwargs):
+    def predict(self, start_user, stop_user, item_feat, batch_size=1024, **kwargs):
         """
-        Predict scores for users in the range [start_user, stop_user) over all items.
+        Predict scores for users in the range [start_user, stop_user) over all items in batches.
         """
-        users = torch.arange(start_user, stop_user).to(self.device)
-        items = torch.arange(self.num_items).to(self.device)
-        item_feat = torch.tensor(item_feat).to(self.device)
+        users = torch.arange(start_user, stop_user)
+        items = torch.arange(self.num_items)
+        item_feat = torch.tensor(item_feat)
 
-        users_expanded = users.unsqueeze(1).repeat(1, self.num_items).flatten()
-        items_expanded = items.unsqueeze(0).repeat(len(users), 1).flatten()
-        item_feat_expanded = item_feat.repeat(len(users), 1).to(self.device)
+        preds = []
 
-        preds = self.forward(users_expanded, items_expanded, item_feat_expanded)
+        for i in range(0, self.num_items, batch_size):
+            batch_items = items[i:i + batch_size]
+            users_expanded = users.unsqueeze(1).repeat(1, len(batch_items)).flatten().to(self.device)
+            items_expanded = batch_items.unsqueeze(0).repeat(len(users), 1).flatten().to(self.device)
+            item_feat_expanded = item_feat[i:i + batch_size].repeat(len(users), 1).to(self.device)
 
-        preds = preds.view(len(users), self.num_items)
+            batch_preds = self.forward(users_expanded, items_expanded, item_feat_expanded)
+            batch_preds = batch_preds.view(len(users), len(batch_items))
+            preds.append(batch_preds)
+
+        preds = torch.cat(preds, dim=1)
         return preds
 
     def train_step(self, batch):
