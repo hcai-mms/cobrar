@@ -69,7 +69,7 @@ class BiVAECFModel(torch.nn.Module, ABC):
 
         if cap_item_priors:
             self.item_features = torch.FloatTensor(item_features)
-            self.item_prior_encoder = nn.Linear(item_features.shape[1], k)
+            self.item_prior_encoder = nn.Linear(item_features.shape[1], k).to(self.device)
 
         # User Encoder
         self.user_encoder = nn.Sequential()
@@ -79,8 +79,11 @@ class BiVAECFModel(torch.nn.Module, ABC):
                 nn.Linear(self.user_encoder_structure[i], self.user_encoder_structure[i + 1]),
             )
             self.user_encoder.add_module("act{}".format(i), self.act_fn)
-        self.user_mu = nn.Linear(self.user_encoder_structure[-1], k)  # mu
-        self.user_std = nn.Linear(self.user_encoder_structure[-1], k)
+
+        self.user_encoder.to(self.device)
+
+        self.user_mu = nn.Linear(self.user_encoder_structure[-1], k).to(self.device)  # mu
+        self.user_std = nn.Linear(self.user_encoder_structure[-1], k).to(self.device)
 
         # Item Encoder
         self.item_encoder = nn.Sequential()
@@ -90,8 +93,11 @@ class BiVAECFModel(torch.nn.Module, ABC):
                 nn.Linear(self.item_encoder_structure[i], self.item_encoder_structure[i + 1]),
             )
             self.item_encoder.add_module("act{}".format(i), self.act_fn)
-        self.item_mu = nn.Linear(self.item_encoder_structure[-1], k)  # mu
-        self.item_std = nn.Linear(self.item_encoder_structure[-1], k)
+
+        self.item_encoder.to(self.device)
+        
+        self.item_mu = nn.Linear(self.item_encoder_structure[-1], k).to(self.device)  # mu
+        self.item_std = nn.Linear(self.item_encoder_structure[-1], k).to(self.device)
 
         user_params = it.chain(
             self.user_encoder.parameters(),
