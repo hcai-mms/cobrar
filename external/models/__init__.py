@@ -28,3 +28,5 @@ for _backend in sys.modules["external"].backend:
         from .deepfm.DeepFM import DeepFM
         from .fm.FactorizationMachine import FactorizationMachine
         from .bivae.BiVAE import BiVAE
+
+    from .feature_item_knn.feature_item_knn import FeatureItemKNN
