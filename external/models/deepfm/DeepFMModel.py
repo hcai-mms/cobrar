@@ -66,10 +66,6 @@ class DeepFMModel(nn.Module):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
 
     def forward(self, user, item, features):
-        user = torch.tensor(user).to(self.device)
-        item = torch.tensor(item).to(self.device)
-        features = torch.tensor(features).to(self.device)
-
         user_emb, item_emb, feat_emb = self.embedding(user, item, features)
 
         feats = torch.cat((user_emb.unsqueeze(1), item_emb.unsqueeze(1), feat_emb), dim=1)
@@ -89,33 +85,34 @@ class DeepFMModel(nn.Module):
 
         return torch.sigmoid(fm_part + deep_part).squeeze()
 
-    def predict(self, start_user, stop_user, item_feat, batch_size=1024, **kwargs):
+    def predict(self, start_user, stop_user, item_feat, **kwargs):
         """
-        Predict scores for users in the range [start_user, stop_user) over all items in batches.
+        Predict scores for users in the range [start_user, stop_user) over all items.
         """
-        users = torch.arange(start_user, stop_user)
-        items = torch.arange(self.num_items)
-        item_feat = torch.tensor(item_feat)
+        users = torch.arange(start_user, stop_user).to(self.device)
+        items = torch.arange(self.num_items).to(self.device)
+        item_feat = torch.tensor(item_feat).to(self.device)
 
-        preds = []
+        users_expanded = users.unsqueeze(1).repeat(1, self.num_items).flatten().to(self.device)
+        items_expanded = items.unsqueeze(0).repeat(len(users), 1).flatten().to(self.device)
+        item_feat_expanded = item_feat.repeat(len(users), 1).to(self.device)
 
-        for i in range(0, self.num_items, batch_size):
-            batch_items = items[i:i + batch_size]
-            users_expanded = users.unsqueeze(1).repeat(1, len(batch_items)).flatten().to(self.device)
-            items_expanded = batch_items.unsqueeze(0).repeat(len(users), 1).flatten().to(self.device)
-            item_feat_expanded = item_feat[i:i + batch_size].repeat(len(users), 1).to(self.device)
+        preds = self.forward(users_expanded, items_expanded, item_feat_expanded)
 
-            batch_preds = self.forward(users_expanded, items_expanded, item_feat_expanded)
-            batch_preds = batch_preds.view(len(users), len(batch_items))
-            preds.append(batch_preds)
-
-        preds = torch.cat(preds, dim=1)
+        preds = preds.view(len(users), self.num_items)
         return preds
 
     def train_step(self, batch):
         user, item, features, label = batch
+
+        user = torch.tensor(user).to(self.device)
+        item = torch.tensor(item).to(self.device)
+        features = torch.tensor(features).to(self.device)
+
         preds = self.forward(user, item, features)
+
         loss = nn.BCELoss()(preds, torch.FloatTensor(label).to(self.device))
+
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()

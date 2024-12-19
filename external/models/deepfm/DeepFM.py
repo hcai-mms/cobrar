@@ -118,9 +118,10 @@ class DeepFM(RecMixin, BaseRecommenderModel):
     def get_recommendations(self, k: int = 100):
         predictions_top_k_test = {}
         predictions_top_k_val = {}
-        for index, offset in enumerate(range(0, self._num_users, self._batch_size)):
-            offset_stop = min(offset + self._batch_size, self._num_users)
-            predictions = self._model.predict(offset, offset_stop, self._item_array, self._batch_size)
+        user_batch_size = 10 if self._num_items > 1000 else self._batch_size  # small batch size needed for memory
+        for index, offset in enumerate(range(0, self._num_users, user_batch_size)):
+            offset_stop = min(offset + user_batch_size, self._num_users)
+            predictions = self._model.predict(offset, offset_stop, self._item_array)
             recs_val, recs_test = self.process_protocol(k, predictions, offset, offset_stop)
             predictions_top_k_val.update(recs_val)
             predictions_top_k_test.update(recs_test)
