@@ -11,8 +11,8 @@ model_defaults: &model_defaults
   batch_size: 512
   factors: 64
   factors_multimod: 64
-  modalities: ('emotion', )
-  loaders: ('EmotionAttribute', )
+  modalities: ('audio', )
+  loaders: ('AudioAttribute', )
   seed: 123
   early_stopping:
     verbose: False
@@ -25,10 +25,8 @@ experiment:
     strategy: dataset
     dataset_path: ../dataset/{0}/interactions.tsv
     side_information:
-      - dataloader: EmotionCategoricalAttributes
-        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
-      - dataloader: EmotionAttribute
-        emotion_features: ../dataset/{0}/emotion_embeddings/gems
+      - dataloader: AudioAttribute
+        audio_features: ../dataset/{0}/audio_embeddings/maest
   prefiltering:
     strategy: iterative_k_core
     core: 5

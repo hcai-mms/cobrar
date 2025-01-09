@@ -1,8 +1,8 @@
 #!/bin/bash
 echo "dataset: $1"
 #model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn')
-model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae' 'featureitemknn' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
-#model_list=('lightgcn' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr')
+#model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae' 'featureitemknn' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
+model_list=('multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
 for model in "${model_list[@]}"
 do
     echo "model: $model"

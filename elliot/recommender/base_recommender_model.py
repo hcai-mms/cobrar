@@ -88,7 +88,9 @@ class BaseRecommenderModel(ABC):
                          ])
 
     def get_params_shortcut(self):
-        short_param_list = [p for p in self._params_list if p[1] not in ['modalities', 'loaders']] # no modalities, saves space for path length limit
+        #short_param_list = [p for p in self._params_list if p[1] not in ['modalities', 'loaders']] # no modalities, saves space for path length limit
+        short_param_list = self._params_list
+        
         return "_".join([str(p[2])+"="+ str(p[5](getattr(self, p[0])) if p[5] else getattr(self, p[0])).replace(".", "$") for p in short_param_list])
 
     def autoset_params(self):
