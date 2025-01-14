@@ -45,7 +45,7 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
         self._params_list = [
             ("_num_neighbors", "neighbors", "nn", 40, int, None),
             ("_similarity", "similarity", "sim", "cosine", None, None),
-            ("_modal_sim_factor", "modal_sim_factor", "msf", 0.5, None, None),
+            ("_modal_sim_factor", "modal_sim_factor", "msf", 0.5, float, None),
             ("_implicit", "implicit", "bin", False, None, None),
             ("_modalities", "modalities", "modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
@@ -65,7 +65,12 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
             all_multimodal_features.append(self.__getattribute__(
                 f'''_side_{self._modalities[m_id]}''').object.get_all_features())
 
-        self._model = Similarity(data=self._data, multimodal_features=all_multimodal_features, num_neighbors=self._num_neighbors, similarity=self._similarity, implicit=self._implicit)
+        self._model = Similarity(data=self._data,
+                                 multimodal_features=all_multimodal_features,
+                                 num_neighbors=self._num_neighbors,
+                                 similarity=self._similarity,
+                                 implicit=self._implicit,
+                                 modal_sim_factor=self._modal_sim_factor)
 
     def get_single_recommendation(self, mask, k, *args):
         return {u: self._model.get_user_recs(u, mask, k) for u in self._ratings.keys()}

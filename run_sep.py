@@ -4,8 +4,8 @@ import argparse
 from utils import merge_yaml, save_yaml
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_cat')
-parser.add_argument('--model', type=str, default='categorical/fm')
+parser.add_argument('--data', type=str, default='emma')
+parser.add_argument('--model', type=str, default='featureitemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")

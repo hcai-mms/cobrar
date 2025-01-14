@@ -13,7 +13,7 @@ class Similarity(object):
     Simple kNN class
     """
 
-    def __init__(self, data, multimodal_features, num_neighbors, similarity, implicit, modal_sim_factor=0.5):
+    def __init__(self, data, multimodal_features, num_neighbors, similarity, implicit, modal_sim_factor):
         self._data = data
         self._ratings = data.train_dict
         self._multimodal_features = multimodal_features
