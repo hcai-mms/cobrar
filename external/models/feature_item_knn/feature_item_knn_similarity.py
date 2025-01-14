@@ -13,13 +13,14 @@ class Similarity(object):
     Simple kNN class
     """
 
-    def __init__(self, data, attribute_matrix, num_neighbors, similarity, implicit):
+    def __init__(self, data, multimodal_features, num_neighbors, similarity, implicit, modal_sim_factor=0.5):
         self._data = data
         self._ratings = data.train_dict
-        self._attribute_matrix = attribute_matrix
+        self._multimodal_features = multimodal_features
         self._num_neighbors = num_neighbors
         self._similarity = similarity
         self._implicit = implicit
+        self._modal_sim_factor = modal_sim_factor
 
         if self._implicit:
             self._URM = self._data.sp_i_train
@@ -75,19 +76,35 @@ class Similarity(object):
 
     def process_similarity(self, similarity):
         if similarity == "cosine":
-            self._att_similarity_matrix = cosine_similarity(self._attribute_matrix)
+            for m_id, m in enumerate(self._multimodal_features):
+                if m_id == 0:
+                    self._att_similarity_matrix = cosine_similarity(m)
+                else:
+                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
+            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
             self._urm_similarity_matrix = cosine_similarity(self._URM.T)
-            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
         elif similarity == "dot":
-            self._att_similarity_matrix = (self._attribute_matrix @ self._attribute_matrix.T)
+            for m_id, m in enumerate(self._multimodal_features):
+                if m_id == 0:
+                    self._att_similarity_matrix = m @ m.T
+                else:
+                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
+            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
             self._urm_similarity_matrix = (self._URM.T @ self._URM).toarray()
-            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
         elif similarity == "euclidean":
-            self._att_similarity_matrix = (1 / (1 + euclidean_distances(self._attribute_matrix)))
+            for m_id, m in enumerate(self._multimodal_features):
+                if m_id == 0:
+                    self._att_similarity_matrix = (1 / (1 + euclidean_distances(m)))
+                else:
+                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
+            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
             self._urm_similarity_matrix = (1 / (1 + euclidean_distances(self._URM.T)))
-            self._similarity_matrix = (self._att_similarity_matrix + self._urm_similarity_matrix) / 2
+
         else:
             raise Exception("Not implemented similarity")
+
+        self._similarity_matrix = self._modal_sim_factor * self._att_similarity_matrix + (
+                    1 - self._modal_sim_factor) * self._urm_similarity_matrix
 
     def get_user_recs(self, u, mask, k):
         user_id = self._data.public_users.get(u)

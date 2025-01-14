@@ -1,6 +1,7 @@
 experiment:
   models:
     external.FeatureItemKNN:
-      neighbors: [ 50, 70, 100 ]
+      neighbors: [ 20, 50, 70, 100 ]
       similarity: [ cosine, dot, euclidean ]
+      modal_sim_factor: [ 0.0, 0.2, 0.5, 0.7, 1.0 ]
       implementation: standard
