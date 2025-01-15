@@ -7,19 +7,23 @@ from ast import literal_eval as make_tuple
 from elliot.utils.write import store_recommendation
 
 from elliot.recommender import BaseRecommenderModel
-from .BiVAEModel import BiVAECFModel
+from .BiVAEMModel import BiVAECFMModel
 from .custom_sampler import Sampler
 from elliot.recommender.recommender_utils_mixin import RecMixin
 from elliot.recommender.base_recommender_model import init_charger
 
 
-class BiVAE(RecMixin, BaseRecommenderModel):
+class BiVAEM(RecMixin, BaseRecommenderModel):
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
         self._params_list = [
             ("_learning_rate", "lr", "lr", 0.0005, float, None),
             ("_k", "k", "k", 10, int, None),
             ("_beta_kl", "beta_kl", "beta_kl", 1.0, float, None),
+            ("_modalities", "modalities", "modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
+             lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
+             ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
+             lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
         ]
         self.autoset_params()
 
@@ -28,11 +32,23 @@ class BiVAE(RecMixin, BaseRecommenderModel):
 
         self._sampler = Sampler(self._data.i_train_dict, self._seed)
 
-        self._model = BiVAECFModel(
+        for m_id, m in enumerate(self._modalities):
+            self.__setattr__(f'''_side_{m}''',
+                             self._data.side_information.__getattribute__(f'''{self._loaders[m_id]}'''))
+
+        all_multimodal_features = []
+        for m_id, m in enumerate(self._modalities):
+            all_multimodal_features.append(self.__getattribute__(
+                f'''_side_{self._modalities[m_id]}''').object.get_all_features())
+            
+        self._i_features = np.concatenate(all_multimodal_features, axis=1)
+
+        self._model = BiVAECFMModel(
             num_users=self._num_users,
             num_items=self._num_items,
             learning_rate=self._learning_rate,
             beta_kl=self._beta_kl,
+            item_features=self._i_features,
             encoder_structure=[20],
             k=self._k,
             random_seed=self._seed
@@ -40,7 +56,7 @@ class BiVAE(RecMixin, BaseRecommenderModel):
 
     @property
     def name(self):
-        return "BiVAECF" \
+        return "BiVAECFM" \
                + f"_{self.get_base_params_shortcut()}" \
                + f"_{self.get_params_shortcut()}"
 

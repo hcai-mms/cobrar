@@ -1,7 +1,7 @@
 experiment:
   backend: pytorch
   models:
-    external.BiVAE:
+    external.BiVAEM:
       lr: [0.0005, 0.001, 0.005, 0.01]
       k: [5, 10, 20]
       beta_kl: [0.1, 0.5, 1.0]

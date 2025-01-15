@@ -17,12 +17,13 @@ ACT = {
     "relu6": nn.ReLU6(),
 }
 
-class BiVAECFModel(torch.nn.Module, ABC):
+class BiVAECFMModel(torch.nn.Module, ABC):
     def __init__(self,
                  num_users,
                  num_items,
                  learning_rate,
                  beta_kl,
+                 item_features,
                  random_seed,
                  encoder_structure=[20],
                  k=10,
@@ -64,6 +65,9 @@ class BiVAECFModel(torch.nn.Module, ABC):
         if self.act_fn is None:
             raise ValueError("Supported act_fn: {}".format(ACT.keys()))
 
+        self.item_features = torch.FloatTensor(item_features)
+        self.item_prior_encoder = nn.Linear(item_features.shape[1], k).to(self.device)
+
         # User Encoder
         self.user_encoder = nn.Sequential()
         for i in range(len(self.user_encoder_structure) - 1):
@@ -103,6 +107,8 @@ class BiVAECFModel(torch.nn.Module, ABC):
             self.item_mu.parameters(),
             self.item_std.parameters(),
         )
+
+        item_params = it.chain(item_params, self.item_prior_encoder.parameters())
 
         self.u_optimizer = torch.optim.Adam(params=user_params, lr=self.learning_rate)
         self.i_optimizer = torch.optim.Adam(params=item_params, lr=self.learning_rate)
@@ -178,7 +184,9 @@ class BiVAECFModel(torch.nn.Module, ABC):
         if not user:
             beta, i_batch_, i_mu, i_std = self.forward(batch, user=user, theta=self.theta)
 
-            i_mu_prior = 0.0
+            i_batch_f = self.item_features[ids].to(self.device)
+            i_mu_prior = self.encode_item_prior(i_batch_f)
+
             loss = self.loss(batch, i_batch_, i_mu, i_mu_prior, i_std, self.beta_kl)
 
             self.i_optimizer.zero_grad()
