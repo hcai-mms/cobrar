@@ -2,7 +2,8 @@ config_files/merged.yml
 config_files/tmp.yml
 slurm-*
 .vscode
-results
+results/emma
+results/onion
 data
 data/
 dataset/
