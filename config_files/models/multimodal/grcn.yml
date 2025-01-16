@@ -5,7 +5,7 @@ experiment:
       lr: [0.0001, 0.001, 0.01, 0.1, 1]
       num_layers: 2
       num_routings: 3
-      factors_multimod: 128
+      factors_multimod: 64
       batch_size: 1024
       aggregation: add
       weight_mode: confid
