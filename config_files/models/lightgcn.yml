@@ -4,6 +4,6 @@ experiment:
     external.LightGCN:
       lr: [ 0.0001, 0.0005, 0.001, 0.005, 0.01 ]
       n_layers: [1, 2, 3]
-      batch_size: 1024
-      normalize: True
+      batch_size: [128, 512, 1024]
+      normalize: [True, False]
       l_w: [ 1e-5, 1e-2 ]
