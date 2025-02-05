@@ -1,9 +1,10 @@
 #!/bin/bash
-dataset_list=('emma' 'emma_audio' 'emma_textual' 'emma_visual' 'onion' 'onion_audio' 'onion_textual' 'onion_visual')
+#dataset_list=('emma' 'emma_audio' 'emma_textual' 'emma_visual' 'onion' 'onion_audio' 'onion_textual' 'onion_visual')
+dataset_list=('onion_textual_emotion')
 #model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae')
 #model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae' 'bivaem' 'featureitemknn' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
-#model_list=('featureitemknn' 'bivaem' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
-model_list=('multimodal/lightgcn_m')
+model_list=('featureitemknn' 'bivaem' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
+#model_list=('multimodal/lightgcn_m')
 for dataset in "${dataset_list[@]}"; do
     for model in "${model_list[@]}"; do
             echo "model: $model"
