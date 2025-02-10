@@ -1,0 +1,7 @@
+experiment:
+  backend: pytorch
+  models:
+    external.FactorizationMachine:
+      batch_size: [64]
+      factors: [10, 20]
+      lr: [0.0005, 0.001, 0.005, 0.01]

@@ -1,0 +1,8 @@
+experiment:
+  backend: pytorch
+  models:
+    external.VBPR:
+      lr: [0.0001, 0.0005, 0.001, 0.005, 0.01]
+      batch_size: [128, 256, 512, 1024]
+      l_w: [1e-5, 0.01, 0.1, 1]
+      comb_mod: concat

@@ -1,0 +1,49 @@
+model_defaults: &model_defaults
+  meta:
+    hyper_opt_alg: grid
+    verbose: False
+    save_weights: False
+    save_recs: False
+    validation_rate: 1
+    validation_metric: nDCG@5
+    restore: False
+  epochs: 200
+  batch_size: 512
+  #factors: 64
+  loader: EmotionCategoricalAttributes
+  seed: 123
+  early_stopping:
+    verbose: False
+    patience: 5
+    monitor: nDCG@5
+experiment:
+  dataset: onion
+  #backend: pytorch
+  data_config:
+    strategy: dataset
+    dataset_path: ../dataset/{0}/interactions.tsv
+    side_information:
+      - dataloader: EmotionCategoricalAttributes
+        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems
+  prefiltering:
+    strategy: iterative_k_core
+    core: 5
+  splitting:
+    #save_on_disk: True
+    #save_folder: ../dataset/{0}/splits
+    test_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.2
+    validation_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.1
+  top_k: 20
+  evaluation:
+    cutoffs: [ 1, 5, 10, 20]
+    simple_metrics: [ Recall, Precision, nDCG, MRR, HR, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
+    paired_ttest: False
+    wilcoxon_test: False
+  gpu: 0
+  external_models_path: ../external/models/__init__.py

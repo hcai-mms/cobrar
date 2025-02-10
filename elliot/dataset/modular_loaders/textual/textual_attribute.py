@@ -26,8 +26,7 @@ class TextualAttribute(AbstractLoader):
     def filter(self, users: t.Set[int], items: t.Set[int]):
         self.users = self.users & users
         self.items = self.items & items
-        # self.item_mapping = {int(item): val for val, item in enumerate(self.items)}
-        self.item_mapping = {item: val for val, item in enumerate(self.items)}
+        self.item_mapping = {int(item): val for val, item in enumerate(self.items)}
 
     def create_namespace(self) -> SimpleNamespace:
         ns = SimpleNamespace()
@@ -45,8 +44,7 @@ class TextualAttribute(AbstractLoader):
         items = set()
         if self.textual_feature_folder_path:
             items_folder = os.listdir(self.textual_feature_folder_path)
-            # items = items.union(set([int(f.split('.')[0]) for f in items_folder]))
-            items = items.union(set([f.split('.')[0] for f in items_folder]))
+            items = items.union(set([int(f.split('.')[0]) for f in items_folder]))
             self.textual_features_shape = np.load(os.path.join(self.textual_feature_folder_path,
                                                                items_folder[0])).shape[-1]
         return items
@@ -58,5 +56,5 @@ class TextualAttribute(AbstractLoader):
         all_features = np.empty((len(self.items), self.textual_features_shape))
         if self.textual_feature_folder_path:
             for key, value in self.item_mapping.items():
-                all_features[value] = np.load(self.textual_feature_folder_path + '/' + str(key) + '.npy')
+                all_features[value] = np.load(self.textual_feature_folder_path + '/' + str(key) + '.npy', allow_pickle=True)
         return all_features

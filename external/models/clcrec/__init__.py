@@ -1,1 +1,1 @@
-from .CLCRec import BM3
+from .CLCRec import CLCRec

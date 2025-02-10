@@ -1,6 +1,12 @@
-results
+config_files/merged.yml
+config_files/tmp.yml
+slurm-*
+.vscode
+results/emma
+results/onion
 data
 data/
+dataset/
 *.npy
 *.tsv
 cmd.txt

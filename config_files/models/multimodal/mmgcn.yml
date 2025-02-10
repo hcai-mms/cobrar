@@ -1,0 +1,12 @@
+experiment:
+  backend: pytorch
+  models:
+    external.MMGCN:
+      lr: [0.00001, 0.00003, 0.0001, 0.001, 0.01]
+      num_layers: [1, 2, 3]
+      factors_multimod: (256, None)
+      batch_size: [512, 1024]
+      aggregation: mean
+      concatenation: False
+      has_id: True
+      l_w: [1e-5, 1e-2]
