@@ -23,18 +23,19 @@ class SiBraRModel(torch.nn.Module, ABC):
     def __init__(self,
                  num_users,
                  num_items,
-                 learning_rate,
+                 lr,
                  input_dim,
                  # ToDo mid_layers,
                  embed_k,
-                 weight_decay,
+                 w_decay,
                  cl_weight,
                  cl_temperature,
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
                  item_modalities, # list of strings
                  use_user_profile,
+                 input_dropout,
                  norm_input_feat,
-                 norm_single_branch_input,
+                 norm_sbra_input,
                  # item multimodal features should also include interactions
                  item_multimodal_features, # actual tensors
                  random_seed,
@@ -58,16 +59,17 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.num_items = num_items
         self.input_dim = input_dim
         self.embed_k = embed_k
-        self.learning_rate = learning_rate
-        self.weight_decay = weight_decay
+        self.lr = lr
+        self.w_decay = w_decay
         self.cl_weight = cl_weight
         self.cl_temperature = cl_temperature
         self._sp_i_train_ratings = sp_i_train_ratings
         self.item_modalities = item_modalities
         self.name = name
         self.use_user_profile = use_user_profile
+        self.input_dropout = input_dropout
         self.norm_input_feat = norm_input_feat
-        self.norm_single_branch_input = norm_single_branch_input
+        self.norm_sbra_input = norm_sbra_input
 
         self.modality_projection_layers = {}
         self.item_multimodal_features = item_multimodal_features
@@ -81,6 +83,9 @@ class SiBraRModel(torch.nn.Module, ABC):
             layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
                     ))]
+
+            if self.input_dropout > 0.:
+                layers.append((f'{m}_dropout', nn.Dropout(p=self.input_dropout)))
             if self.norm_input_feat:
                 layers.append((f'{m}_norm_layer', L2NormalizationLayer(dim=1)))
             layers.append((f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device)))
@@ -135,7 +140,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         # AdamW is what was used for SiBraR
         # with weight decay instead of l2 reg
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.w_decay)
 
 
     def get_user_representations(self, users):
@@ -148,9 +153,9 @@ class SiBraRModel(torch.nn.Module, ABC):
         for m_id, m in enumerate(self.item_modalities):
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
-            if self.norm_single_branch_input:
+            if self.norm_sbra_input:
                 feature = nn.functional.normalize(feature, p=2, dim=-1)
-            # ToDo add batch normalizationk
+            # ToDo add batch normalization
             feature = self.single_branch(feature)
             features[..., m_id, :] = feature.squeeze()
 
@@ -159,7 +164,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         ## batch normalization
         m_id = len(self.item_modalities)
         feature = self.item_embedding_modules[m_id](items)
-        if self.norm_single_branch_input:
+        if self.norm_sbra_input:
             feature = nn.functional.normalize(feature, p=2, dim=-1)
         feature = self.single_branch(feature)
         features[..., m_id, :] = feature.squeeze()

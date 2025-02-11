@@ -3,7 +3,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 from ast import literal_eval as make_tuple
-
+from typing import Union
 # ToDo check if we need a different custom sampler.
 # Right now it is the same of CLCRec
 from .custom_sampler import Sampler
@@ -25,16 +25,17 @@ class SiBraR(RecMixin, BaseRecommenderModel):
     def __init__(self, data, config, params, *args, **kwargs):
         # Define Parameters as tuples: (variable_name, public_name, shortcut, default, reading_function, printing_function)
         self._params_list = [
-            ("_learning_rate", "lr", "lr", 0.0005, float, None),
+            ("_lr", "lr", "lr", 0.0005, float, None),
             ("_num_neg", "num_neg", "num_neg", 128, int, None),
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
             ("_factors", "factors", "factors", 64, int, None),
-            ("_weight_decay", "weight_decay", "weight_decay", 0.01, float, None),
+            ("_w_decay", "w_decay", "w_decay", 0.01, float, None),
             # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
             ("_cl_weight", "cl_weight", "cl_weight", 0.001, float, None),
             ("_use_user_profile", "use_user_profile", "use_user_profile", True, bool, None),
             ("_norm_input_feat", "norm_input_feat", "norm_input_feat", True, bool, None),
-            ("_norm_single_branch_input", "norm_single_branch_input", "norm_single_branch_input", True, bool, None),
+            ("_input_dropout", "input_dropout", "input_dropout", -1., float, None),
+            ("_norm_sbra_input", "norm_sbra_input", "norm_sbra_input", True, bool, None),
             ("_cl_temperature", "cl_temperature", "cl_temperature", 0.01, float, None),
             ("_item_modalities", "item_modalities", "item_modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
@@ -61,17 +62,18 @@ class SiBraR(RecMixin, BaseRecommenderModel):
                  # item multimodal features should also include interactions
                  num_users=self._num_users,
             num_items=self._num_items,
-            learning_rate=self._learning_rate,
+            lr=self._lr,
             input_dim=self._input_dim,
-            weight_decay=self._weight_decay,
+            w_decay=self._w_decay,
             cl_weight=self._cl_weight,
             cl_temperature=self._cl_temperature,
             embed_k=self._factors,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             item_modalities=self._item_modalities,
             use_user_profile=self._use_user_profile,
+            input_dropout=self._input_dropout,
             norm_input_feat=self._norm_input_feat,
-            norm_single_branch_input=self._norm_single_branch_input,
+            norm_sbra_input=self._norm_sbra_input,
             item_multimodal_features=all_multimodal_features,  # dictionary of actual tensors
             random_seed=self._seed,
         )

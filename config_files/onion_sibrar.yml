@@ -25,16 +25,17 @@ experiment:
         validation_rate: 1
         validation_metric: nDCG@10
         restore: False
-      lr: [ 0.001 ]
+      lr: [ 1e-3 ]
       num_neg: [ 16 ]
 
       input_dim: 256
       item_modalities: ('audio', )
       epochs: 2
       factors: 64
-      weight_decay: 1e-3
+      w_decay: 1e-3
+#      input_dropout: 1e-3
       norm_input_feat: False
-      norm_single_branch_input: False
+      norm_sbra_input: False
       use_user_profile: True
       cl_weight: 1e-7
       batch_size: 256
