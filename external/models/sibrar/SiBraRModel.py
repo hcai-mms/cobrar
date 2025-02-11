@@ -25,13 +25,13 @@ class SiBraRModel(torch.nn.Module, ABC):
                  num_items,
                  lr,
                  input_dim,
-                 # ToDo mid_layers,
+                 mid_layers,
                  emb_dim,
                  w_decay,
                  cl_weight,
-                 cl_temperature,
+                 cl_temp,
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
-                 item_modalities, # list of strings
+                 item_mods, # list of strings
                  use_user_profile,
                  input_dropout,
                  norm_input_feat,
@@ -62,9 +62,9 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.lr = lr
         self.w_decay = w_decay
         self.cl_weight = cl_weight
-        self.cl_temperature = cl_temperature
+        self.cl_temp = cl_temp
         self._sp_i_train_ratings = sp_i_train_ratings
-        self.item_modalities = item_modalities
+        self.item_mods = item_mods
         self.name = name
         self.use_user_profile = use_user_profile
         self.input_dropout = input_dropout
@@ -79,7 +79,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         # these are layers adapting each feature to the input of the single branch
         # this should NOT include the interactions, which are treated the same way as features,
         # but are always the last one
-        for m_id, m in enumerate(self.item_modalities):
+        for m_id, m in enumerate(self.item_mods):
             layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
                     ))]
@@ -110,9 +110,9 @@ class SiBraRModel(torch.nn.Module, ABC):
             layers.append((f'profile_norm_layer', L2NormalizationLayer(dim=1)))
         layers.append((f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device)))
         layers = collections.OrderedDict(layers)
-        self.item_embedding_modules[len(self.item_modalities)] = torch.nn.Sequential(layers)
+        self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(layers)
 
-        # self.item_embedding_modules[len(self.item_modalities)] = torch.nn.Sequential(
+        # self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(
         #     collections.OrderedDict([
         #         (f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
         #             torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device)
@@ -149,8 +149,8 @@ class SiBraRModel(torch.nn.Module, ABC):
 
 
     def get_item_representations(self, items):
-        features = torch.zeros((*items.squeeze().shape, len(self.item_modalities) + 1, self.emb_dim)).to(self.device)
-        for m_id, m in enumerate(self.item_modalities):
+        features = torch.zeros((*items.squeeze().shape, len(self.item_mods) + 1, self.emb_dim)).to(self.device)
+        for m_id, m in enumerate(self.item_mods):
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
             if self.norm_sbra_input:
@@ -162,7 +162,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         # Interactions (same ToDo as above)
         ## Activations
         ## batch normalization
-        m_id = len(self.item_modalities)
+        m_id = len(self.item_mods)
         feature = self.item_embedding_modules[m_id](items)
         if self.norm_sbra_input:
             feature = nn.functional.normalize(feature, p=2, dim=-1)
@@ -186,7 +186,7 @@ class SiBraRModel(torch.nn.Module, ABC):
     def loss_contrastive(self, contrastive_modality_reps):
         # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_modality_reps = contrastive_modality_reps.reshape(-1, contrastive_modality_reps.size(-2), contrastive_modality_reps.size(-1))
-        logits = contrastive_modality_reps[:, 0, :] @ contrastive_modality_reps[:, 1, :].transpose(-2, -1) / self.cl_temperature
+        logits = contrastive_modality_reps[:, 0, :] @ contrastive_modality_reps[:, 1, :].transpose(-2, -1) / self.cl_temp
 
         # Positive keys are the entries on the diagonal, therefore these are the correct labels:
         # [batch_size, 0, 1, ..., batch_size - 1]
@@ -213,7 +213,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         user_repr, pos_item_repres = self.forward(inputs=(user, pos))
         _, neg_item_repres = self.forward(inputs=(user, neg))
 
-        sampled_modalities_ids = np.random.choice(len(self.item_modalities) + 1, 2, replace=False)
+        sampled_modalities_ids = np.random.choice(len(self.item_mods) + 1, 2, replace=False)
 
         pos_item_repres = pos_item_repres[..., sampled_modalities_ids, :] # shape is [num_users, 2, embedding_dim]
         neg_item_repres = neg_item_repres[..., sampled_modalities_ids, :]

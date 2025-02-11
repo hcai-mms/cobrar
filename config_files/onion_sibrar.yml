@@ -31,15 +31,16 @@ experiment:
       norm_input_feat: False
       input_dim: 256
       norm_sbra_input: False
-#      mid_layers: [ [] ]
+      mid_layers: [ [] ]
       emb_dim: 64
 
-      item_modalities: ('audio', )
+      item_mods: ('audio', )
       epochs: 2
       w_decay: 1e-3
 #      input_dropout: 1e-3
       use_user_profile: True
       cl_weight: 1e-7
+      cl_temp: 1e-7
       batch_size: 256
       l_w: [ 1e-2 ]
       loaders: ('AudioAttribute', )

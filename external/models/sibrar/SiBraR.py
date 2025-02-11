@@ -28,7 +28,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_lr", "lr", "lr", 0.0005, float, None),
             ("_num_neg", "num_neg", "num_neg", 128, int, None),
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
-            # ("_mid_layers", "mid_layers", "mid_layers", [], List[int], None),
+            ("_mid_layers", "mid_layers", "mid_layers", [], list, None),
             ("_emb_dim", "emb_dim", "emb_dim", 64, int, None),
             ("_w_decay", "w_decay", "w_decay", 0.01, float, None),
             # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
@@ -37,8 +37,8 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_norm_input_feat", "norm_input_feat", "norm_input_feat", True, bool, None),
             ("_input_dropout", "input_dropout", "input_dropout", -1., float, None),
             ("_norm_sbra_input", "norm_sbra_input", "norm_sbra_input", True, bool, None),
-            ("_cl_temperature", "cl_temperature", "cl_temperature", 0.01, float, None),
-            ("_item_modalities", "item_modalities", "item_modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
+            ("_cl_temp", "cl_temp", "cl_temp", 0.01, float, None),
+            ("_item_mods", "item_mods", "item_mods", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
             ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
@@ -52,12 +52,12 @@ class SiBraR(RecMixin, BaseRecommenderModel):
 
         self._sampler = Sampler(self._data.i_train_dict, self._num_neg, self._seed)
 
-        for m_id, m in enumerate(self._item_modalities):
+        for m_id, m in enumerate(self._item_mods):
             self.__setattr__(f'''_side_{m}''',
                              self._data.side_information.__getattribute__(f'''{self._loaders[m_id]}'''))
 
         all_multimodal_features = {m_id: self.__getattribute__(
-                    f'''_side_{self._item_modalities[m_id]}''').object.get_all_features() for m_id, m in enumerate(self._item_modalities)}
+                    f'''_side_{self._item_mods[m_id]}''').object.get_all_features() for m_id, m in enumerate(self._item_mods)}
 
         self._model = SiBraRModel(
                  # item multimodal features should also include interactions
@@ -67,11 +67,11 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             input_dim=self._input_dim,
             w_decay=self._w_decay,
             cl_weight=self._cl_weight,
-            cl_temperature=self._cl_temperature,
-            # mid_layers=self._mid_layers,
+            cl_temp=self._cl_temp,
+            mid_layers=self._mid_layers,
             emb_dim=self._emb_dim,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
-            item_modalities=self._item_modalities,
+            item_mods=self._item_mods,
             use_user_profile=self._use_user_profile,
             input_dropout=self._input_dropout,
             norm_input_feat=self._norm_input_feat,
