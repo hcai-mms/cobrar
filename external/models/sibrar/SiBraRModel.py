@@ -84,9 +84,6 @@ class SiBraRModel(torch.nn.Module, ABC):
             layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
                     ))]
-
-            if self.input_dropout > 0.:
-                layers.append((f'{m}_dropout', nn.Dropout(p=self.input_dropout)))
             if self.norm_input_feat:
                 layers.append((f'{m}_norm_layer', L2NormalizationLayer(dim=1)))
 
@@ -112,6 +109,9 @@ class SiBraRModel(torch.nn.Module, ABC):
         single_branch_layers_dim = [self.input_dim] + self.mid_layers + [self.emb_dim]
 
         layers = collections.OrderedDict()
+        if self.input_dropout > 0.:
+            layers[f'single_branch_input_dropout'] = nn.Dropout(p=self.input_dropout)
+
         total_iterations = len(single_branch_layers_dim[:-1])
         for i, (d1, d2) in enumerate(zip(single_branch_layers_dim[:-1], single_branch_layers_dim[1:])):
             layer = nn.Linear(in_features=d1, out_features=d2).to(self.device)
@@ -231,13 +231,6 @@ class SiBraRModel(torch.nn.Module, ABC):
         xu_neg = torch.sum(user_repr * neg_item_repr, 1)
 
         loss = -torch.mean(torch.nn.functional.logsigmoid(xu_pos - xu_neg))
-        # self.item_embedding_modules
-        # self.single_branch
-        # self.user_embedding_module
-        # reg_loss = self.l_w * (1 / 2) * (self.item_embedding_modules.weight[user[:, 0]].norm(2).pow(2) +
-        #                                  self.Gi.weight[pos[:, 0]].norm(2).pow(2) +
-        #                                  self.Gi.weight[neg[:, 0]].norm(2).pow(2)) / float(batch[0].shape[0])
-        # loss += reg_loss
         contrastive_modality_reps = torch.cat((pos_item_repres[:, None, :, :], neg_item_repres), 1) # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_loss = self.loss_contrastive(contrastive_modality_reps)
         loss += self.cl_weight * contrastive_loss

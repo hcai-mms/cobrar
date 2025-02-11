@@ -33,6 +33,9 @@ experiment:
       norm_sbra_input: False
       mid_layers: [ [] ]
       emb_dim: 64
+      # When to apply batch normalization
+      # 0 ... deactivate, 1+ ... every n layers, -1 ... only last layer
+      batch_norm_every: 0
 
       item_mods: ('audio', )
       epochs: 2
