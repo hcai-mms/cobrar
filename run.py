@@ -3,7 +3,7 @@ import argparse
 from utils import merge_yaml, save_yaml
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--config', type=str, default='emma_cat_sample_2')
+parser.add_argument('--config', type=str, default='onion_sibrar')
 args = parser.parse_args()
 
 print(f"Running experiment with config: {args.config}")
