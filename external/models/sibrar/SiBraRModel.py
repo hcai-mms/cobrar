@@ -27,13 +27,13 @@ class SiBraRModel(torch.nn.Module, ABC):
                  input_dim,
                  # ToDo mid_layers,
                  embed_k,
-                 # ToDo regularization
-                 # reg_weight,
+                 weight_decay,
                  cl_weight,
                  cl_temperature,
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
                  item_modalities, # list of strings
                  use_user_profile,
+                 normalize_single_branch_input,
                  # item multimodal features should also include interactions
                  item_multimodal_features, # actual tensors
                  random_seed,
@@ -58,14 +58,14 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.input_dim = input_dim
         self.embed_k = embed_k
         self.learning_rate = learning_rate
-        # We can actually leave the l2 regularization, as it is not harmful. Worst case, we set reg_weight to 0.
-        # self.reg_weight = reg_weight
+        self.weight_decay = weight_decay
         self.cl_weight = cl_weight
         self.cl_temperature = cl_temperature
         self._sp_i_train_ratings = sp_i_train_ratings
         self.item_modalities = item_modalities
         self.name = name
         self.use_user_profile = use_user_profile
+        self.normalize_single_branch_input = normalize_single_branch_input
 
         self.modality_projection_layers = {}
         self.item_multimodal_features = item_multimodal_features
@@ -111,8 +111,9 @@ class SiBraRModel(torch.nn.Module, ABC):
         else:
             self.user_embedding_module = torch.nn.Embedding(self.num_users, self.embed_k).to(self.device)
 
-        # AdamW is what we used for SiBraR
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        # AdamW is what was used for SiBraR
+        # with weight decay instead of l2 reg
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
 
 
     def get_user_representations(self, users):
@@ -126,7 +127,8 @@ class SiBraRModel(torch.nn.Module, ABC):
             # ToDo add normalization of input? Check if it is already in sequential
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
-            # ToDo add normalization to input of single branch
+            if self.normalize_single_branch_input:
+                feature = nn.functional.normalize(feature, p=2, dim=-1)
             # ToDo add batch normalization
             feature = self.single_branch(feature)
             features[..., m_id, :] = feature.squeeze()
@@ -193,9 +195,12 @@ class SiBraRModel(torch.nn.Module, ABC):
         xu_neg = torch.sum(user_repr * neg_item_repr, 1)
 
         loss = -torch.mean(torch.nn.functional.logsigmoid(xu_pos - xu_neg))
-        # reg_loss = self.reg_weight * (1 / 2) * (gamma_u.norm(2).pow(2) +
-        #                                  gamma_i_pos.norm(2).pow(2) +
-        #                                  gamma_i_neg.norm(2).pow(2)) / user.shape[0]
+        # self.item_embedding_modules
+        # self.single_branch
+        # self.user_embedding_module
+        # reg_loss = self.l_w * (1 / 2) * (self.item_embedding_modules.weight[user[:, 0]].norm(2).pow(2) +
+        #                                  self.Gi.weight[pos[:, 0]].norm(2).pow(2) +
+        #                                  self.Gi.weight[neg[:, 0]].norm(2).pow(2)) / float(batch[0].shape[0])
         # loss += reg_loss
         contrastive_modality_reps = torch.cat((pos_item_repres[:, None, :, :], neg_item_repres), 1) # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_loss = self.loss_contrastive(contrastive_modality_reps)

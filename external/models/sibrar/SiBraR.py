@@ -4,9 +4,9 @@ import numpy as np
 from tqdm import tqdm
 from ast import literal_eval as make_tuple
 
-# ToDo check if we need a custom sampler
-# from .custom_sampler import Sampler
-from ..clcrec.custom_sampler import Sampler
+# ToDo check if we need a different custom sampler.
+# Right now it is the same of CLCRec
+from .custom_sampler import Sampler
 
 from elliot.utils.write import store_recommendation
 
@@ -29,10 +29,11 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_num_neg", "num_neg", "num_neg", 128, int, None),
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
             ("_factors", "factors", "factors", 64, int, None),
-            # ("_reg_weight", "reg_weight", "reg_weight", 0.01, float, None),
+            ("_weight_decay", "weight_decay", "weight_decay", 0.01, float, None),
             # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
-            ("_cl_weight", "cl_weight", "cl_weight", 0.01, float, None),
+            ("_cl_weight", "cl_weight", "cl_weight", 0.001, float, None),
             ("_use_user_profile", "use_user_profile", "use_user_profile", True, bool, None),
+            ("_normalize_single_branch_input", "normalize_single_branch_input", "normalize_single_branch_input", True, bool, None),
             ("_cl_temperature", "cl_temperature", "cl_temperature", 0.01, float, None),
             ("_item_modalities", "item_modalities", "item_modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
@@ -61,12 +62,14 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             num_items=self._num_items,
             learning_rate=self._learning_rate,
             input_dim=self._input_dim,
+            weight_decay=self._weight_decay,
             cl_weight=self._cl_weight,
             cl_temperature=self._cl_temperature,
             embed_k=self._factors,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             item_modalities=self._item_modalities,
             use_user_profile=self._use_user_profile,
+            normalize_single_branch_input=self._normalize_single_branch_input,
             item_multimodal_features=all_multimodal_features,  # dictionary of actual tensors
             random_seed=self._seed,
         )

@@ -22,18 +22,21 @@ experiment:
         verbose: True
         save_weights: False
         save_recs: False
-        validation_rate: 10
+        validation_rate: 1
         validation_metric: nDCG@10
         restore: False
-      lr: [ 0.001, 0.0001]
+      lr: [ 0.001 ]
       num_neg: [ 16 ]
 
       input_dim: 256
       item_modalities: ('audio', )
-      epochs: 200
+      epochs: 2
       factors: 64
+      weight_decay: 1e-3
+      normalize_single_branch_input: True
+      use_user_profile: True
       cl_weight: 1e-7
       batch_size: 256
-      l_w: [ 1e-5, 1e-2 ]
+      l_w: [ 1e-2 ]
       loaders: ('AudioAttribute', )
       seed: 123
