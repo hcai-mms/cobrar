@@ -6,8 +6,8 @@ experiment:
     validation_path: ../data/{0}/val.tsv
     test_path: ../data/{0}/test.tsv
     side_information:
-      - dataloader: VisualAttribute
-        visual_features: ../data/{0}/emotion_embeddings/autotag_profiles
+       - dataloader: AudioAttribute
+         audio_features: ../dataset/{0}/audio_embeddings/maest
   dataset: onion
   top_k: 50
   evaluation:
@@ -26,12 +26,14 @@ experiment:
         validation_metric: nDCG@10
         restore: False
       lr: [ 0.001, 0.0001]
+      num_neg: [ 16 ]
+
       input_dim: 256
-      item_modalities: ('visual', )
+      item_modalities: ('audio', )
       epochs: 200
       factors: 64
       cl_weight: 1e-7
-      batch_size: 1024
+      batch_size: 256
       l_w: [ 1e-5, 1e-2 ]
-      loaders: ('VisualAttribute', )
+      loaders: ('AudioAttribute', )
       seed: 123
