@@ -33,7 +33,8 @@ class SiBraRModel(torch.nn.Module, ABC):
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
                  item_modalities, # list of strings
                  use_user_profile,
-                 normalize_single_branch_input,
+                 norm_input_feat,
+                 norm_single_branch_input,
                  # item multimodal features should also include interactions
                  item_multimodal_features, # actual tensors
                  random_seed,
@@ -65,7 +66,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.item_modalities = item_modalities
         self.name = name
         self.use_user_profile = use_user_profile
-        self.normalize_single_branch_input = normalize_single_branch_input
+        self.norm_input_feat = norm_input_feat
+        self.norm_single_branch_input = norm_single_branch_input
 
         self.modality_projection_layers = {}
         self.item_multimodal_features = item_multimodal_features
@@ -76,24 +78,44 @@ class SiBraRModel(torch.nn.Module, ABC):
         # this should NOT include the interactions, which are treated the same way as features,
         # but are always the last one
         for m_id, m in enumerate(self.item_modalities):
-            self.item_embedding_modules[m_id] = torch.nn.Sequential(
-                collections.OrderedDict([
-                    (f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
-                    torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
-                )),
-                    (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
-                    (f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device))
-            ]))
-        # the last modality is interactions
-        self.item_embedding_modules[len(self.item_modalities)] = torch.nn.Sequential(
-            collections.OrderedDict([
-                (f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
+            layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
+                        torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
+                    ))]
+            if self.norm_input_feat:
+                layers.append((f'{m}_norm_layer', L2NormalizationLayer(dim=1)))
+            layers.append((f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device)))
+            layers = collections.OrderedDict(layers)
+
+            self.item_embedding_modules[m_id] = torch.nn.Sequential(layers)
+
+            # self.item_embedding_modules[m_id] = torch.nn.Sequential(
+            #     collections.OrderedDict([
+            #         (f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
+            #         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
+            #     )),
+            #         # (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
+            #         (f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device))
+            # ]))
+            # the last modality is interactions
+
+        layers = [(f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
                     torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device)
-                )),
-                (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
-                (f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device))
-                ])
-            )
+                ))]
+        if self.norm_input_feat:
+            layers.append((f'profile_norm_layer', L2NormalizationLayer(dim=1)))
+        layers.append((f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device)))
+        layers = collections.OrderedDict(layers)
+        self.item_embedding_modules[len(self.item_modalities)] = torch.nn.Sequential(layers)
+
+        # self.item_embedding_modules[len(self.item_modalities)] = torch.nn.Sequential(
+        #     collections.OrderedDict([
+        #         (f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
+        #             torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device)
+        #         )),
+        #         (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
+        #         (f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device))
+        #         ])
+        #     )
 
         # this is the actual single branch, shared by all item modalities
         # ToDo add option to add hidden layers ([ 512, 512, 512, 256, 256 ])
@@ -124,18 +146,21 @@ class SiBraRModel(torch.nn.Module, ABC):
     def get_item_representations(self, items):
         features = torch.zeros((*items.squeeze().shape, len(self.item_modalities) + 1, self.embed_k)).to(self.device)
         for m_id, m in enumerate(self.item_modalities):
-            # ToDo add normalization of input? Check if it is already in sequential
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
-            if self.normalize_single_branch_input:
+            if self.norm_single_branch_input:
                 feature = nn.functional.normalize(feature, p=2, dim=-1)
-            # ToDo add batch normalization
+            # ToDo add batch normalizationk
             feature = self.single_branch(feature)
             features[..., m_id, :] = feature.squeeze()
 
         # Interactions (same ToDo as above)
+        ## Activations
+        ## batch normalization
         m_id = len(self.item_modalities)
         feature = self.item_embedding_modules[m_id](items)
+        if self.norm_single_branch_input:
+            feature = nn.functional.normalize(feature, p=2, dim=-1)
         feature = self.single_branch(feature)
         features[..., m_id, :] = feature.squeeze()
 

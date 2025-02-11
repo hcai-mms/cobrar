@@ -33,7 +33,8 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
             ("_cl_weight", "cl_weight", "cl_weight", 0.001, float, None),
             ("_use_user_profile", "use_user_profile", "use_user_profile", True, bool, None),
-            ("_normalize_single_branch_input", "normalize_single_branch_input", "normalize_single_branch_input", True, bool, None),
+            ("_norm_input_feat", "norm_input_feat", "norm_input_feat", True, bool, None),
+            ("_norm_single_branch_input", "norm_single_branch_input", "norm_single_branch_input", True, bool, None),
             ("_cl_temperature", "cl_temperature", "cl_temperature", 0.01, float, None),
             ("_item_modalities", "item_modalities", "item_modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
@@ -69,7 +70,8 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             item_modalities=self._item_modalities,
             use_user_profile=self._use_user_profile,
-            normalize_single_branch_input=self._normalize_single_branch_input,
+            norm_input_feat=self._norm_input_feat,
+            norm_single_branch_input=self._norm_single_branch_input,
             item_multimodal_features=all_multimodal_features,  # dictionary of actual tensors
             random_seed=self._seed,
         )

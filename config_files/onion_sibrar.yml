@@ -33,7 +33,8 @@ experiment:
       epochs: 2
       factors: 64
       weight_decay: 1e-3
-      normalize_single_branch_input: True
+      norm_input_feat: False
+      norm_single_branch_input: False
       use_user_profile: True
       cl_weight: 1e-7
       batch_size: 256
