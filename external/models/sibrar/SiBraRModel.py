@@ -109,8 +109,6 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(layers)
 
         # this is the actual single branch, shared by all item modalities
-        # ToDo add option to add hidden layers ([ 512, 512, 512, 256, 256 ])
-
         single_branch_layers_dim = [self.input_dim] + self.mid_layers + [self.emb_dim]
 
         layers = collections.OrderedDict()
