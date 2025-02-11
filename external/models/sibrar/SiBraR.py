@@ -4,7 +4,10 @@ import numpy as np
 from tqdm import tqdm
 from ast import literal_eval as make_tuple
 
-from .custom_sampler import Sampler
+# ToDo check if we need a custom sampler
+# from .custom_sampler import Sampler
+from ..clcrec.custom_sampler import Sampler
+
 from elliot.utils.write import store_recommendation
 
 from elliot.recommender import BaseRecommenderModel
@@ -23,6 +26,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
         # Define Parameters as tuples: (variable_name, public_name, shortcut, default, reading_function, printing_function)
         self._params_list = [
             ("_learning_rate", "lr", "lr", 0.0005, float, None),
+            ("_num_neg", "num_neg", "num_neg", 128, int, None),
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
             ("_factors", "factors", "factors", 64, int, None),
             # ("_reg_weight", "reg_weight", "reg_weight", 0.01, float, None),
@@ -42,11 +46,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
 
         # def __init__(self, indexed_ratings, transactions, batch_size, all_items, seed=42):
 
-        self._sampler = Sampler(self._data.i_train_dict,
-                                self._data.transactions,
-                                self._batch_size,
-                                self._data.edge_index['itemId'].unique().tolist(),
-                                self._seed)
+        self._sampler = Sampler(self._data.i_train_dict, self._num_neg, self._seed)
 
         for m_id, m in enumerate(self._item_modalities):
             self.__setattr__(f'''_side_{m}''',
@@ -89,7 +89,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             self._data.edge_index = self._data.edge_index.sample(frac=1, replace=False).reset_index(drop=True)
             # edge_index = np.array([self._data.edge_index['userId'].tolist(), self._data.edge_index['itemId'].tolist()])
             with tqdm(total=n_batch, disable=not self._verbose) as t:
-                for batch in self._sampler.step():
+                for batch in self._sampler.step(self._data.transactions, self._batch_size):
                     steps += 1
                     self._model.optimizer.zero_grad()
                     current_loss = self._model.train_step(batch)

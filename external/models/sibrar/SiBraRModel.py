@@ -64,7 +64,6 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.cl_temperature = cl_temperature
         self._sp_i_train_ratings = sp_i_train_ratings
         self.item_modalities = item_modalities
-        # print(item_modalities)
         self.name = name
         self.use_user_profile = use_user_profile
 
@@ -122,39 +121,39 @@ class SiBraRModel(torch.nn.Module, ABC):
 
 
     def get_item_representations(self, items):
-
-        features = torch.zeros((items.shape[0], len(self.item_modalities) + 1, self.embed_k)).to(self.device)
+        features = torch.zeros((*items.squeeze().shape, len(self.item_modalities) + 1, self.embed_k)).to(self.device)
         for m_id, m in enumerate(self.item_modalities):
             # ToDo add normalization of input? Check if it is already in sequential
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
-            # print(feature)
             # ToDo add normalization to input of single branch
             # ToDo add batch normalization
             feature = self.single_branch(feature)
-            # print(self.single_branch.weight)
-            features[:, m_id, :] = feature
+            features[..., m_id, :] = feature.squeeze()
 
         # Interactions (same ToDo as above)
         m_id = len(self.item_modalities)
         feature = self.item_embedding_modules[m_id](items)
         feature = self.single_branch(feature)
-        # print(feature)
-        features[:, m_id, :] = feature
+        features[..., m_id, :] = feature.squeeze()
 
         return features # Shape is [batch_size, num_modalities, embedding_dimension]
 
     def forward(self, inputs, **kwargs):
         # gu and gi should be the user and item batches
         users, items = inputs
-        u_repr = self.get_user_representations(users)
-        i_repr = self.get_item_representations(items)
+
+        user_tensor = torch.tensor(users).to(self.device)
+        items_tensor = torch.tensor(items).to(self.device)
+
+        u_repr = self.get_user_representations(user_tensor)
+        i_repr = self.get_item_representations(items_tensor)
         # i_repr = torch.mean(i_repr, dim=-2)
         return u_repr, i_repr
 
     def loss_contrastive(self, contrastive_modality_reps):
-        # shape is [batch_size, batch_size]
-        # i.e. 2* num_users
+        # shape is [num_users, 1 + n_negs, 2, embedding_dim]
+        contrastive_modality_reps = contrastive_modality_reps.reshape(-1, contrastive_modality_reps.size(-2), contrastive_modality_reps.size(-1))
         logits = contrastive_modality_reps[:, 0, :] @ contrastive_modality_reps[:, 1, :].transpose(-2, -1) / self.cl_temperature
 
         # Positive keys are the entries on the diagonal, therefore these are the correct labels:
@@ -177,16 +176,15 @@ class SiBraRModel(torch.nn.Module, ABC):
 
     def train_step(self, batch):
         user, pos, neg = batch
-        user, pos, neg = user.to(self.device), pos.to(self.device), neg.to(self.device)
+        # user, pos, neg = user.to(self.device), pos.to(self.device), neg.to(self.device)
 
         user_repr, pos_item_repres = self.forward(inputs=(user, pos))
         _, neg_item_repres = self.forward(inputs=(user, neg))
 
         sampled_modalities_ids = np.random.choice(len(self.item_modalities) + 1, 2, replace=False)
-        # print(sampled_modalities_ids)
 
-        pos_item_repres = pos_item_repres[:, sampled_modalities_ids, :] # shape is [num_users, 2, embedding_dim]
-        neg_item_repres = neg_item_repres[:, sampled_modalities_ids, :]
+        pos_item_repres = pos_item_repres[..., sampled_modalities_ids, :] # shape is [num_users, 2, embedding_dim]
+        neg_item_repres = neg_item_repres[..., sampled_modalities_ids, :]
 
         pos_item_repr = torch.mean(pos_item_repres, dim=-2)
         neg_item_repr = torch.mean(neg_item_repres, dim=-2)
@@ -199,9 +197,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         #                                  gamma_i_pos.norm(2).pow(2) +
         #                                  gamma_i_neg.norm(2).pow(2)) / user.shape[0]
         # loss += reg_loss
-
-        contrastive_modality_reps = torch.cat((pos_item_repres, neg_item_repres), 0) #shape is [2*num_users, 2, embedding_dim]
-        # print(contrastive_modality_reps.shape)
+        contrastive_modality_reps = torch.cat((pos_item_repres[:, None, :, :], neg_item_repres), 1) # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_loss = self.loss_contrastive(contrastive_modality_reps)
         loss += self.cl_weight * contrastive_loss
 
