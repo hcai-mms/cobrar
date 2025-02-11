@@ -58,6 +58,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.num_users = num_users
         self.num_items = num_items
         self.input_dim = input_dim
+        self.mid_layers = mid_layers
         self.emb_dim = emb_dim
         self.lr = lr
         self.w_decay = w_decay
@@ -88,20 +89,13 @@ class SiBraRModel(torch.nn.Module, ABC):
                 layers.append((f'{m}_dropout', nn.Dropout(p=self.input_dropout)))
             if self.norm_input_feat:
                 layers.append((f'{m}_norm_layer', L2NormalizationLayer(dim=1)))
+
             layers.append((f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device)))
+            layers.append((f'{m}_projector_activation', nn.ReLU()))
             layers = collections.OrderedDict(layers)
 
             self.item_embedding_modules[m_id] = torch.nn.Sequential(layers)
 
-            # self.item_embedding_modules[m_id] = torch.nn.Sequential(
-            #     collections.OrderedDict([
-            #         (f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
-            #         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
-            #     )),
-            #         # (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
-            #         (f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device))
-            # ]))
-            # the last modality is interactions
 
         layers = [(f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
                     torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device)
@@ -109,22 +103,35 @@ class SiBraRModel(torch.nn.Module, ABC):
         if self.norm_input_feat:
             layers.append((f'profile_norm_layer', L2NormalizationLayer(dim=1)))
         layers.append((f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device)))
+        layers.append((f'profile_projector_activation', nn.ReLU()))
+
         layers = collections.OrderedDict(layers)
         self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(layers)
 
-        # self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(
-        #     collections.OrderedDict([
-        #         (f'profile_as_embedding', torch.nn.Embedding.from_pretrained(
-        #             torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device)
-        #         )),
-        #         (f'{m}_norm_layer', L2NormalizationLayer(dim=1)),
-        #         (f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device))
-        #         ])
-        #     )
-
         # this is the actual single branch, shared by all item modalities
         # ToDo add option to add hidden layers ([ 512, 512, 512, 256, 256 ])
-        self.single_branch = torch.nn.Linear(self.input_dim, self.emb_dim).to(self.device)
+
+        single_branch_layers_dim = [self.input_dim] + self.mid_layers + [self.emb_dim]
+
+        layers = collections.OrderedDict()
+        total_iterations = len(single_branch_layers_dim[:-1])
+        for i, (d1, d2) in enumerate(zip(single_branch_layers_dim[:-1], single_branch_layers_dim[1:])):
+            layer = nn.Linear(in_features=d1, out_features=d2).to(self.device)
+            layers[f"single_branch_layer_{i}"] = layer
+
+            # apply batch normalization before activation fn (see http://torch.ch/blog/2016/02/04/resnets.html)
+            # +1 to not immediately put normalization after first layer if 'apply_batch_norm_every' >= 2
+            # if apply_batch_norm_every > 0 and (i + 1) % apply_batch_norm_every == 0:
+            #     layer_dict[f"batch_norm_{i}"] = nn.BatchNorm1d(num_features=d2)
+
+            if i < total_iterations - 1:
+                # only add activation functions in intermediate layers
+                layers[f"single_branch_relu_{i}"] = nn.ReLU().to(self.device)
+
+        # if apply_batch_norm_every == -1:
+        #     layer_dict[f"batch_norm"] = nn.BatchNorm1d(num_features=layer_config[-1])
+
+        self.single_branch = torch.nn.Sequential(layers)
 
         # Right now only supports interactions, only, for users
         if self.use_user_profile:
@@ -133,7 +140,8 @@ class SiBraRModel(torch.nn.Module, ABC):
                 ('profile_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self._sp_i_train_ratings.toarray(), dtype=torch.float32, device=self.device)
                 )),
-                ('profile_projector', torch.nn.Linear(self.num_items, self.emb_dim).to(self.device))
+                ('profile_projector', torch.nn.Linear(self.num_items, self.emb_dim).to(self.device)),
+                ('profile_projector_relu', nn.ReLU().to(self.device)),
             ]))
         else:
             self.user_embedding_module = torch.nn.Embedding(self.num_users, self.emb_dim).to(self.device)
@@ -151,16 +159,16 @@ class SiBraRModel(torch.nn.Module, ABC):
     def get_item_representations(self, items):
         features = torch.zeros((*items.squeeze().shape, len(self.item_mods) + 1, self.emb_dim)).to(self.device)
         for m_id, m in enumerate(self.item_mods):
-            # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
+            # print(feature.device) cuda
             if self.norm_sbra_input:
                 feature = nn.functional.normalize(feature, p=2, dim=-1)
+            # print(feature.device) # cuda
             # ToDo add batch normalization
             feature = self.single_branch(feature)
             features[..., m_id, :] = feature.squeeze()
 
         # Interactions (same ToDo as above)
-        ## Activations
         ## batch normalization
         m_id = len(self.item_mods)
         feature = self.item_embedding_modules[m_id](items)
