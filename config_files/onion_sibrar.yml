@@ -34,14 +34,16 @@ experiment:
       mid_layers: [ [] ]
       emb_dim: 64
       # When to apply batch normalization
+      # This is batch_norm_every in SiBraR
       # 0 ... deactivate, 1+ ... every n layers, -1 ... only last layer
-      batch_norm_every: 0
+      b_norm_e: 0
 
       item_mods: ('audio', )
       epochs: 2
       w_decay: 1e-3
-#      input_dropout: 1e-3
-      use_user_profile: True
+#     dropout: 1e-3
+      # use_user_profile i.e., users interactions for embedding users
+      u_prof: True
       cl_weight: 1e-7
       cl_temp: 1e-7
       batch_size: 256

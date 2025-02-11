@@ -27,13 +27,14 @@ class SiBraRModel(torch.nn.Module, ABC):
                  input_dim,
                  mid_layers,
                  emb_dim,
+                 b_norm_e,
                  w_decay,
                  cl_weight,
                  cl_temp,
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
                  item_mods, # list of strings
-                 use_user_profile,
-                 input_dropout,
+                 u_prof,
+                 dropout,
                  norm_input_feat,
                  norm_sbra_input,
                  # item multimodal features should also include interactions
@@ -60,6 +61,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.input_dim = input_dim
         self.mid_layers = mid_layers
         self.emb_dim = emb_dim
+        self.b_norm_e = b_norm_e
         self.lr = lr
         self.w_decay = w_decay
         self.cl_weight = cl_weight
@@ -67,8 +69,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         self._sp_i_train_ratings = sp_i_train_ratings
         self.item_mods = item_mods
         self.name = name
-        self.use_user_profile = use_user_profile
-        self.input_dropout = input_dropout
+        self.u_prof = u_prof
+        self.dropout = dropout
         self.norm_input_feat = norm_input_feat
         self.norm_sbra_input = norm_sbra_input
 
@@ -109,8 +111,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         single_branch_layers_dim = [self.input_dim] + self.mid_layers + [self.emb_dim]
 
         layers = collections.OrderedDict()
-        if self.input_dropout > 0.:
-            layers[f'single_branch_input_dropout'] = nn.Dropout(p=self.input_dropout)
+        if self.dropout > 0.:
+            layers[f'single_branch_dropout'] = nn.Dropout(p=self.dropout)
 
         total_iterations = len(single_branch_layers_dim[:-1])
         for i, (d1, d2) in enumerate(zip(single_branch_layers_dim[:-1], single_branch_layers_dim[1:])):
@@ -118,21 +120,24 @@ class SiBraRModel(torch.nn.Module, ABC):
             layers[f"single_branch_layer_{i}"] = layer
 
             # apply batch normalization before activation fn (see http://torch.ch/blog/2016/02/04/resnets.html)
-            # +1 to not immediately put normalization after first layer if 'apply_batch_norm_every' >= 2
-            # if apply_batch_norm_every > 0 and (i + 1) % apply_batch_norm_every == 0:
-            #     layer_dict[f"batch_norm_{i}"] = nn.BatchNorm1d(num_features=d2)
+            # +1 to not immediately put normalization after first layer if 'apply_b_norm_e' >= 2
+            if b_norm_e > 0 and (i + 1) % b_norm_e == 0:
+                layers[f"batch_norm_{i}"] = nn.BatchNorm1d(num_features=d2)
 
             if i < total_iterations - 1:
                 # only add activation functions in intermediate layers
                 layers[f"single_branch_relu_{i}"] = nn.ReLU().to(self.device)
 
-        # if apply_batch_norm_every == -1:
-        #     layer_dict[f"batch_norm"] = nn.BatchNorm1d(num_features=layer_config[-1])
+        if b_norm_e == -1:
+            layers[f"batch_norm"] = nn.BatchNorm1d(num_features=layer_config[-1])
+
+        # Final ReLU activation
+        layers[f"final_activation"] = nn.ReLU()
 
         self.single_branch = torch.nn.Sequential(layers)
 
         # Right now only supports interactions, only, for users
-        if self.use_user_profile:
+        if self.u_prof:
             self.user_embedding_module = torch.nn.Sequential(
                 collections.OrderedDict([
                 ('profile_as_embedding', torch.nn.Embedding.from_pretrained(
