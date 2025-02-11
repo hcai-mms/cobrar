@@ -3,7 +3,7 @@ import os
 import numpy as np
 from tqdm import tqdm
 from ast import literal_eval as make_tuple
-from typing import Union
+# from typing import List
 # ToDo check if we need a different custom sampler.
 # Right now it is the same of CLCRec
 from .custom_sampler import Sampler
@@ -28,7 +28,8 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_lr", "lr", "lr", 0.0005, float, None),
             ("_num_neg", "num_neg", "num_neg", 128, int, None),
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
-            ("_factors", "factors", "factors", 64, int, None),
+            # ("_mid_layers", "mid_layers", "mid_layers", [], List[int], None),
+            ("_emb_dim", "emb_dim", "emb_dim", 64, int, None),
             ("_w_decay", "w_decay", "w_decay", 0.01, float, None),
             # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
             ("_cl_weight", "cl_weight", "cl_weight", 0.001, float, None),
@@ -67,7 +68,8 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             w_decay=self._w_decay,
             cl_weight=self._cl_weight,
             cl_temperature=self._cl_temperature,
-            embed_k=self._factors,
+            # mid_layers=self._mid_layers,
+            emb_dim=self._emb_dim,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             item_modalities=self._item_modalities,
             use_user_profile=self._use_user_profile,

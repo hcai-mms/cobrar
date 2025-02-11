@@ -26,7 +26,7 @@ class SiBraRModel(torch.nn.Module, ABC):
                  lr,
                  input_dim,
                  # ToDo mid_layers,
-                 embed_k,
+                 emb_dim,
                  w_decay,
                  cl_weight,
                  cl_temperature,
@@ -58,7 +58,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.num_users = num_users
         self.num_items = num_items
         self.input_dim = input_dim
-        self.embed_k = embed_k
+        self.emb_dim = emb_dim
         self.lr = lr
         self.w_decay = w_decay
         self.cl_weight = cl_weight
@@ -124,7 +124,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         # this is the actual single branch, shared by all item modalities
         # ToDo add option to add hidden layers ([ 512, 512, 512, 256, 256 ])
-        self.single_branch = torch.nn.Linear(self.input_dim, self.embed_k).to(self.device)
+        self.single_branch = torch.nn.Linear(self.input_dim, self.emb_dim).to(self.device)
 
         # Right now only supports interactions, only, for users
         if self.use_user_profile:
@@ -133,10 +133,10 @@ class SiBraRModel(torch.nn.Module, ABC):
                 ('profile_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self._sp_i_train_ratings.toarray(), dtype=torch.float32, device=self.device)
                 )),
-                ('profile_projector', torch.nn.Linear(self.num_items, self.embed_k).to(self.device))
+                ('profile_projector', torch.nn.Linear(self.num_items, self.emb_dim).to(self.device))
             ]))
         else:
-            self.user_embedding_module = torch.nn.Embedding(self.num_users, self.embed_k).to(self.device)
+            self.user_embedding_module = torch.nn.Embedding(self.num_users, self.emb_dim).to(self.device)
 
         # AdamW is what was used for SiBraR
         # with weight decay instead of l2 reg
@@ -149,7 +149,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
 
     def get_item_representations(self, items):
-        features = torch.zeros((*items.squeeze().shape, len(self.item_modalities) + 1, self.embed_k)).to(self.device)
+        features = torch.zeros((*items.squeeze().shape, len(self.item_modalities) + 1, self.emb_dim)).to(self.device)
         for m_id, m in enumerate(self.item_modalities):
             # ToDo check for activations (ReLu)
             feature = self.item_embedding_modules[m_id](items)
