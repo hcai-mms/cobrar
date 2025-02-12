@@ -1,9 +1,7 @@
 import torch
 import os
-import numpy as np
 from tqdm import tqdm
 from ast import literal_eval as make_tuple
-# from typing import List
 # ToDo check if we need a different custom sampler.
 # Right now it is the same of CLCRec
 from .custom_sampler import Sampler
@@ -30,14 +28,13 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_input_dim", "input_dim", "input_dim", 256, int, None),
             ("_mid_layers", "mid_layers", "mid_layers", [], list, None),
             ("_emb_dim", "emb_dim", "emb_dim", 64, int, None),
-            ("_b_norm_e", "b_norm_e", "b_norm_e", 0, int, None),
+            # ("_b_norm_e", "b_norm_e", "b_norm_e", 0, int, None),
             ("_w_decay", "w_decay", "w_decay", 0.01, float, None),
-            # ("_combine_modalities", "comb_mod", "comb_mod", 'none', str, None),
             ("_cl_weight", "cl_weight", "cl_weight", 0.001, float, None),
             ("_u_prof", "u_prof", "u_prof", True, bool, None),
-            ("_norm_input_feat", "norm_input_feat", "norm_input_feat", True, bool, None),
+            ("_norm_input_feat", "norm_input_feat", "norm_input_feat", False, bool, None),
             ("_dropout", "dropout", "dropout", -1., float, None),
-            ("_norm_sbra_input", "norm_sbra_input", "norm_sbra_input", True, bool, None),
+            ("_norm_sbra_input", "norm_sbra_input", "norm_sbra_input", False, bool, None),
             ("_cl_temp", "cl_temp", "cl_temp", 0.01, float, None),
             ("_item_mods", "item_mods", "item_mods", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
@@ -71,7 +68,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             cl_temp=self._cl_temp,
             mid_layers=self._mid_layers,
             emb_dim=self._emb_dim,
-            b_norm_e=self._b_norm_e,
+            # b_norm_e=self._b_norm_e,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             item_mods=self._item_mods,
             u_prof=self._u_prof,
