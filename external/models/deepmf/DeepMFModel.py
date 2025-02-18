@@ -42,7 +42,6 @@ class DeepMFModel(torch.nn.Module, ABC):
         self.item_mlp = item_mlp
         self.reg = reg
         self.similarity = similarity
-        # ToDo
         self.max_ratings = max_ratings
         self._sp_i_train_ratings = sp_i_train_ratings
         self.mu = mu
@@ -137,15 +136,6 @@ class DeepMFModel(torch.nn.Module, ABC):
             preds = torch.sigmoid(preds)
 
         loss = nn.BCELoss()(preds, torch.FloatTensor(label).to(self.device))
-
-        # reg_loss = (1 / 2) * (gamma_u.norm(2).pow(2) +
-        #                                  gamma_i_pos.norm(2).pow(2) +
-        #                                  gamma_i_neg.norm(2).pow(2) +
-        #                                  theta_u.norm(2).pow(2) +
-        #                                  proj_i_pos.norm(2).pow(2) +
-        #                                  proj_i_neg.norm(2).pow(2)) / user.shape[0]
-        #
-        # loss += self.reg * reg_loss
 
         self.optimizer.zero_grad()
         loss.backward()
