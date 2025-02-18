@@ -10,6 +10,7 @@ class DeepMFModel(torch.nn.Module, ABC):
     def __init__(self,
                  num_users,
                  num_items,
+                 embedding_dim,
                  user_mlp,
                  item_mlp,
                  reg,
@@ -17,6 +18,8 @@ class DeepMFModel(torch.nn.Module, ABC):
                  max_ratings,
                  sp_i_train_ratings,
                  learning_rate=0.01,
+                 # from equation (13) of the original paper
+                 mu=1.e-6,
                  random_seed=42,
                  name="DeepMF",
                  **kwargs):
@@ -34,23 +37,21 @@ class DeepMFModel(torch.nn.Module, ABC):
 
         self.num_users = num_users
         self.num_items = num_items
+        self.embedding_dim = embedding_dim
         self.user_mlp = user_mlp
         self.item_mlp = item_mlp
-        # ToDo
         self.reg = reg
         self.similarity = similarity
         # ToDo
         self.max_ratings = max_ratings
-        # ToDo from equation (13) of the original paper
-        self.mu = 1.e-6
         self._sp_i_train_ratings = sp_i_train_ratings
-
+        self.mu = mu
         # User and item profiles (rows and cols in the interaction matrix)
         # as pre-trained embeddings
         self.user_embedding = torch.nn.Embedding.from_pretrained(
                         torch.tensor(self._sp_i_train_ratings.toarray(), dtype=torch.float32, device=self.device))
         layers = []
-        self.user_mlp = [self.num_items] + self.user_mlp
+        self.user_mlp = [self.num_items] + self.user_mlp + [self.embedding_dim]
         for i, (d1, d2) in enumerate(zip(self.user_mlp[:-1], self.user_mlp[1:])):
             layer = nn.Linear(in_features=d1, out_features=d2)
             torch.nn.init.xavier_uniform_(layer.weight)
@@ -67,7 +68,7 @@ class DeepMFModel(torch.nn.Module, ABC):
         self.item_embedding = torch.nn.Embedding.from_pretrained(
             torch.tensor(self._sp_i_train_ratings.T.toarray(), dtype=torch.float32, device=self.device))
         layers = []
-        self.item_mlp = [self.num_users] + self.item_mlp
+        self.item_mlp = [self.num_users] + self.item_mlp + [self.embedding_dim]
         for i, (d1, d2) in enumerate(zip(self.item_mlp[:-1], self.item_mlp[1:])):
             layer = nn.Linear(in_features=d1, out_features=d2)
             torch.nn.init.xavier_uniform_(layer.weight)

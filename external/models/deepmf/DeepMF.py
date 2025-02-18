@@ -26,6 +26,7 @@ class DeepMF(RecMixin, BaseRecommenderModel):
         Args:
             lr: Learning rate
             reg: Regularization coefficient
+            embedding_dim: shared embedding dimension
             user_mlp: List of units for each layer
             item_mlp: List of activation functions
             similarity: Number of factors dimension
@@ -43,6 +44,7 @@ class DeepMF(RecMixin, BaseRecommenderModel):
               batch_size: 512
               lr: 0.0001
               reg: 0.001
+              emb_dim: 32
               user_mlp: (64,32)
               item_mlp: (64,32)
               similarity: cosine
@@ -50,12 +52,15 @@ class DeepMF(RecMixin, BaseRecommenderModel):
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
         self._params_list = [
-            ("_learning_rate", "lr", "lr", 0.0001, None, None),
-            ("_user_mlp", "user_mlp", "umlp", "(64,32)", lambda x: list(make_tuple(str(x))), lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
-            ("_item_mlp", "item_mlp", "imlp", "(64,32)", lambda x: list(make_tuple(str(x))), lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
+            ("_embedding_dim", "embedding_dim", "emb_dim", 32, None, None),
+            ("_user_mlp", "user_mlp", "umlp", [64, 32], list, None),
+            ("_item_mlp", "item_mlp", "imlp", [64, 32], list, None),
+            # ToDo check
             ("_neg_ratio", "neg_ratio", "negratio", 5, None, None),
             ("_reg", "reg", "reg", 0.001, None, None),
-            ("_similarity", "similarity", "sim", "cosine", None, None)
+            ("_similarity", "similarity", "sim", "cosine", None, None),
+            ("_learning_rate", "lr", "lr", 0.0001, None, None),
+            ("_mu", "mu", "mu", 0.0001, None, None),
         ]
         self.autoset_params()
 
@@ -74,6 +79,7 @@ class DeepMF(RecMixin, BaseRecommenderModel):
         self._model = DeepMFModel(
             num_users=self._num_users,
             num_items=self._num_items,
+            embedding_dim=self._embedding_dim,
             user_mlp=self._user_mlp,
             item_mlp=self._item_mlp,
             reg=self._reg,
@@ -81,6 +87,7 @@ class DeepMF(RecMixin, BaseRecommenderModel):
             max_ratings=self._max_ratings,
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             learning_rate=self._learning_rate,
+            mu=self._mu,
             random_seed=self._seed
         )
 
