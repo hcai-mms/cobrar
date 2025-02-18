@@ -82,7 +82,7 @@ class DeepMFModel(torch.nn.Module, ABC):
             item_param.requires_grad = True
 
         self.cosine_func = nn.CosineSimilarity(dim=-1)
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate, weight_decay=self.reg)
         self.name = 'DeepMatrixFactorization'
 
     def get_user_representations(self, users):
@@ -136,6 +136,15 @@ class DeepMFModel(torch.nn.Module, ABC):
             preds = torch.sigmoid(preds)
 
         loss = nn.BCELoss()(preds, torch.FloatTensor(label).to(self.device))
+
+        # reg_loss = (1 / 2) * (gamma_u.norm(2).pow(2) +
+        #                                  gamma_i_pos.norm(2).pow(2) +
+        #                                  gamma_i_neg.norm(2).pow(2) +
+        #                                  theta_u.norm(2).pow(2) +
+        #                                  proj_i_pos.norm(2).pow(2) +
+        #                                  proj_i_neg.norm(2).pow(2)) / user.shape[0]
+        #
+        # loss += self.reg * reg_loss
 
         self.optimizer.zero_grad()
         loss.backward()
