@@ -4,12 +4,14 @@ slurm-*
 .vscode
 results/emma
 results/onion
+results_old/
 data
 data/
 dataset/
 *.npy
 *.tsv
 cmd.txt
+elliot_datasets.tar.bz2 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
