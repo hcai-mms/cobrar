@@ -99,6 +99,10 @@ class DeepMFModel(torch.nn.Module, ABC):
         users, items = inputs
 
         user_tensor = torch.tensor(users).to(self.device)
+        # user_tensor = users.clone().detach() or the
+        # same
+        # with .requires_grad_(True)
+
         items_tensor = torch.tensor(items).to(self.device)
 
         u_repr = self.get_user_representations(user_tensor)
@@ -124,7 +128,8 @@ class DeepMFModel(torch.nn.Module, ABC):
 
     def train_step(self, batch):
         user, item, label = batch
-        label /= self.max_ratings
+
+        label = label / self.max_ratings
         user_repr, item_repr = self.forward(inputs=(user, item))
 
         if self.similarity == 'cosine':
