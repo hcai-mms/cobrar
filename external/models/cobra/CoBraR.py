@@ -47,7 +47,7 @@ class CoBraR(DeepMF):
     def __init__(self, data, config, params, *args, **kwargs):
         DeepMF.__init__(self, data, config, params, *args, **kwargs)
         self._params_list += [
-            ("_collaborative_branch", "cb", "cb", [1024, 512], list, None),
+            ("_collaborative_branch", "collaborative_branch", "cb", [1024, 512], list, None),
         ]
         self.autoset_params()
 
