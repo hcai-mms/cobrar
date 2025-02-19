@@ -55,7 +55,6 @@ class DeepMF(RecMixin, BaseRecommenderModel):
             ("_embedding_dim", "embedding_dim", "emb_dim", 32, None, None),
             ("_user_mlp", "user_mlp", "umlp", [64, 32], list, None),
             ("_item_mlp", "item_mlp", "imlp", [64, 32], list, None),
-            # ToDo check
             ("_neg_ratio", "neg_ratio", "negratio", 5, None, None),
             ("_reg", "reg", "reg", 0.001, None, None),
             ("_similarity", "similarity", "sim", "cosine", None, None),
