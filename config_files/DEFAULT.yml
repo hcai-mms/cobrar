@@ -8,12 +8,12 @@ experiment:
       #   visual_features: ../dataset/{0}/visual_embeddings/resnet
       # - dataloader: TextualAttribute
       #   textual_features: ../dataset/{0}/textual_embeddings/bert
-       - dataloader: AudioAttribute
-         audio_features: ../dataset/{0}/audio_embeddings/maest
-#      - dataloader: EmotionCategoricalAttributes
-#        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
-#      - dataloader: EmotionAttribute
-#        emotion_features: ../dataset/{0}/emotion_embeddings/gems
+      # - dataloader: AudioAttribute
+      #   audio_features: ../dataset/{0}/audio_embeddings/musicnn
+      - dataloader: EmotionCategoricalAttributes
+        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems
   prefiltering:
     strategy: iterative_k_core
     core: 5
