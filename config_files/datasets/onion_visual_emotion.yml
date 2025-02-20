@@ -1,0 +1,10 @@
+experiment:
+  dataset: onion
+  data_config:
+    side_information:
+      - dataloader: AudioAttribute
+        audio_features: ../dataset/{0}/audio_embeddings/maest
+      - dataloader: EmotionCategoricalAttributes
+        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems

@@ -1,4 +1,5 @@
 from pyexpat import model
+from elliot import dataset
 from elliot.run import run_experiment
 import argparse
 from utils import merge_yaml, save_yaml
@@ -10,10 +11,21 @@ args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
 
+dataset_defaults_config = "config_files/datasets/dataset_defaults.yml"
+model_defaults_config = "config_files/models/model_defaults.yml"
+
 dataset_config = f"config_files/datasets/{args.data}.yml"
 model_config = f"config_files/models/{args.model}.yml"
 
+dataset_config = merge_yaml(dataset_defaults_config, dataset_config)
+model_config = merge_yaml(model_defaults_config, model_config)
 merged_config = merge_yaml(dataset_config, model_config)
+
+# add dataset defaults
+dataset_defaults = merged_config.get("dataset_defaults", {})
+dataset_keys = merged_config["experiment"]["datasets"].keys()
+for key in dataset_keys:
+    merged_config["experiment"]["datasets"][key] = {**dataset_defaults, **merged_config["experiment"]["datasets"][key]}
 
 # add model defaults
 model_defaults = merged_config.get("model_defaults", {})
@@ -23,4 +35,4 @@ for key in model_keys:
 
 save_yaml(merged_config, "config_files/tmp.yml")
 
-run_experiment("config_files/tmp.yml")
+#run_experiment("config_files/tmp.yml")
