@@ -1,6 +1,0 @@
-experiment:
-  models:
-    AttributeItemKNN:
-      neighbors: [ 50, 70, 100 ]
-      similarity: [ cosine, euclidean ]
-      implementation: standard

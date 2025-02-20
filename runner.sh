@@ -1,10 +1,41 @@
 #!/bin/bash
-dataset_list=('emma' 'emma_audio' 'emma_textual' 'emma_visual' 'emma_textual_emotion' 'onion' 'onion_audio' 'onion_textual' 'onion_visual' 'onion_audio_emotion')
+
+# Check if dataset argument is provided
+if [ $# -ne 1 ]; then
+    echo "Usage: $0 <dataset>"
+    echo "dataset options: emma, onion"
+    exit 1
+fi
+
+model_list=('itemknn' 'featureitemknn' 'lightgcn' 'lightgcn_m')
+
+emma_dataset_list=(
+    'emma_emotion' 'emma_audio' 'emma_textual' 'emma_visual' 'emma_textual_emotion'
+    'onion_emotion' 'onion_audio' 'onion_textual' 'onion_visual' 'onion_audio_emotion'
+    'emma_audio_emotion' 'emma_visual_emotion'
+    'emma_audio_textual' 'emma_audio_visual' 'emma_textual_visual'
+    'emma_audio_textual_emotion' 'emma_audio_visual_emotion' 'emma_textual_visual_emotion'
+    'emma_audio_textual_visual' 'emma_audio_textual_visual_emotion')
+
+onion_dataset_list=(
+'onion_textual_emotion' 'onion_visual_emotion'
+    'onion_audio_textual' 'onion_audio_visual' 'onion_textual_visual'
+    'onion_audio_textual_emotion' 'onion_audio_visual_emotion' 'onion_textual_visual_emotion'
+    'onion_audio_textual_visual' 'onion_audio_textual_visual_emotion'
+)
+
+dataset=$1
+if [ $dataset == "emma" ]; then
+    dataset_list=("${emma_dataset_list[@]}")
+elif [ $dataset == "onion" ]; then
+    dataset_list=("${onion_dataset_list[@]}")
+else
+    echo "Invalid dataset"
+    exit 1
+fi
+
 #dataset_list=('emma_textual_emotion')
-#model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae')
-#model_list=('simple' 'bprmf' 'neumf' 'multivae' 'lightgcn' 'bivae' 'bivaem' 'featureitemknn' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
-#model_list=('featureitemknn' 'bivaem' 'multimodal/bm3' 'multimodal/clcrec' 'multimodal/freedom' 'multimodal/grcn' 'multimodal/lattice' 'multimodal/mmgcn' 'multimodal/vbpr' 'multimodal/lightgcn_m')
-model_list=('simple' 'featureitemknn' 'lightgcn' 'multimodal/lightgcn_m')
+
 for dataset in "${dataset_list[@]}"; do
     for model in "${model_list[@]}"; do
             echo "model: $model"
