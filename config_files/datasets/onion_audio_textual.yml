@@ -1,0 +1,10 @@
+modalities: ('audio', 'textual')
+loaders: ('AudioAttribute', 'TextualAttribute')
+experiment:
+  dataset: onion
+  data_config:
+    side_information:
+      - dataloader: AudioAttribute
+        audio_features: ../dataset/{0}/audio_embeddings/maest
+      - dataloader: TextualAttribute
+        textual_features: ../dataset/{0}/textual_embeddings/bert

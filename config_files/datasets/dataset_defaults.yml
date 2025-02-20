@@ -1,4 +1,4 @@
-dataset_defaults: &dataset_defaults
+experiment:
   data_config:
     strategy: dataset
     dataset_path: ../dataset/{0}/interactions.tsv
@@ -6,8 +6,8 @@ dataset_defaults: &dataset_defaults
     strategy: iterative_k_core
     core: 5
   splitting:
-    save_on_disk: True
-    save_folder: ../dataset/{0}/splits
+    #save_on_disk: True
+    #save_folder: ../dataset/{0}/splits
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2

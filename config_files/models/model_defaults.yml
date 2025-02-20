@@ -1,20 +1,19 @@
-model_defaults: &model_defaults
-  meta:
-    hyper_opt_alg: grid
-    verbose: False
-    save_weights: False
-    save_recs: False
-    validation_rate: 1
-    validation_metric: nDCG@5
-    restore: False
-  epochs: 200
-  batch_size: 512
-  factors: 64
-  factors_multimod: 64
-  modalities: ('audio', 'emotion')
-  loaders: ('AudioAttribute', 'EmotionAttribute')
-  seed: 123
-  early_stopping:
-    verbose: False
-    patience: 5
-    monitor: nDCG@5
+meta:
+  hyper_opt_alg: grid
+  verbose: False
+  save_weights: False
+  save_recs: False
+  validation_rate: 1
+  validation_metric: nDCG@5
+  restore: False
+epochs: 200
+batch_size: 512
+factors: 64
+factors_multimod: 64
+modalities: ('audio', 'emotion')
+loaders: ('AudioAttribute', 'EmotionAttribute')
+seed: 123
+early_stopping:
+  verbose: False
+  patience: 5
+  monitor: nDCG@5

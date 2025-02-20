@@ -2,37 +2,33 @@ from pyexpat import model
 from elliot import dataset
 from elliot.run import run_experiment
 import argparse
-from utils import merge_yaml, save_yaml
+from utils import save_yaml, load_yaml, merge_dicts
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma')
+parser.add_argument('--data', type=str, default='onion_audio_emotion')
 parser.add_argument('--model', type=str, default='featureitemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
 
-dataset_defaults_config = "config_files/datasets/dataset_defaults.yml"
-model_defaults_config = "config_files/models/model_defaults.yml"
+dataset_defaults_config = load_yaml("config_files/datasets/dataset_defaults.yml")
+model_defaults_config = load_yaml("config_files/models/model_defaults.yml")
 
-dataset_config = f"config_files/datasets/{args.data}.yml"
-model_config = f"config_files/models/{args.model}.yml"
+dataset_config = load_yaml(f"config_files/datasets/{args.data}.yml")
+model_config = load_yaml(f"config_files/models/{args.model}.yml")
 
-dataset_config = merge_yaml(dataset_defaults_config, dataset_config)
-model_config = merge_yaml(model_defaults_config, model_config)
-merged_config = merge_yaml(dataset_config, model_config)
+config = merge_dicts(dataset_defaults_config, dataset_config, model_config)
 
-# add dataset defaults
-dataset_defaults = merged_config.get("dataset_defaults", {})
-dataset_keys = merged_config["experiment"]["datasets"].keys()
-for key in dataset_keys:
-    merged_config["experiment"]["datasets"][key] = {**dataset_defaults, **merged_config["experiment"]["datasets"][key]}
-
-# add model defaults
-model_defaults = merged_config.get("model_defaults", {})
-model_keys = merged_config["experiment"]["models"].keys()
+# add model defaults & modalities and loaders
+model_keys = config["experiment"]["models"].keys()
 for key in model_keys:
-    merged_config["experiment"]["models"][key] = {**model_defaults, **merged_config["experiment"]["models"][key]}
+    config["experiment"]["models"][key] = {**model_defaults_config, **config["experiment"]["models"][key]}
+    config["experiment"]["models"][key]["modalities"] = dataset_config['modalities']
+    config["experiment"]["models"][key]["loaders"] = dataset_config['loaders']
 
-save_yaml(merged_config, "config_files/tmp.yml")
+# drop all non experiment keys
+config = {key: config[key] for key in config.keys() & {'experiment'}}
 
-#run_experiment("config_files/tmp.yml")
+save_yaml(config, "config_files/tmp.yml")
+
+run_experiment("config_files/tmp.yml")

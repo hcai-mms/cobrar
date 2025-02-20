@@ -1,7 +1,7 @@
 modalities: ('audio', 'emotion')
 loaders: ('AudioAttribute', 'EmotionAttribute')
 experiment:
-  dataset: onion
+  dataset: emma
   data_config:
     side_information:
       - dataloader: AudioAttribute
