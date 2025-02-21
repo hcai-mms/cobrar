@@ -5,8 +5,8 @@ import argparse
 from utils import save_yaml, load_yaml, merge_dicts
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='onion_audio_emotion')
-parser.add_argument('--model', type=str, default='featureitemknn')
+parser.add_argument('--data', type=str, default='emma_audio')
+parser.add_argument('--model', type=str, default='itemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
