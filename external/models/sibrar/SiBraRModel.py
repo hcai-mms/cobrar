@@ -31,7 +31,7 @@ class SiBraRModel(torch.nn.Module, ABC):
                  cl_weight,
                  cl_temp,
                  sp_i_train_ratings, # see deepmatrixfactorization, this is used as interaction modality for both user and item
-                 item_mods, # list of strings
+                 modalities, # list of strings
                  u_prof,
                  dropout,
                  norm_input_feat,
@@ -66,7 +66,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.cl_weight = cl_weight
         self.cl_temp = cl_temp
         self._sp_i_train_ratings = sp_i_train_ratings
-        self.item_mods = item_mods
+        self.modalities = modalities
         self.name = name
         self.u_prof = u_prof
         self.dropout = dropout
@@ -81,7 +81,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         # these are layers adapting each feature to the input of the single branch
         # this should NOT include the interactions, which are treated the same way as features,
         # but are always the last one
-        for m_id, m in enumerate(self.item_mods):
+        for m_id, m in enumerate(self.modalities):
             layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
                     ))]
@@ -104,7 +104,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         layers.append((f'profile_projector_activation', nn.ReLU()))
 
         layers = collections.OrderedDict(layers)
-        self.item_embedding_modules[len(self.item_mods)] = torch.nn.Sequential(layers)
+        self.item_embedding_modules[len(self.modalities)] = torch.nn.Sequential(layers)
 
         # this is the actual single branch, shared by all item modalities
         single_branch_layers_dim = [self.input_dim] + self.mid_layers + [self.emb_dim]
@@ -161,8 +161,8 @@ class SiBraRModel(torch.nn.Module, ABC):
 
 
     def get_item_representations(self, items):
-        features = torch.zeros((*items.squeeze().shape, len(self.item_mods) + 1, self.emb_dim)).to(self.device)
-        for m_id, m in enumerate(self.item_mods):
+        features = torch.zeros((*items.squeeze().shape, len(self.modalities) + 1, self.emb_dim)).to(self.device)
+        for m_id, m in enumerate(self.modalities):
             feature = self.item_embedding_modules[m_id](items)
             # print(feature.device) cuda
             if self.norm_sbra_input:
@@ -174,7 +174,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         # Interactions (same ToDo as above)
         ## batch normalization
-        m_id = len(self.item_mods)
+        m_id = len(self.modalities)
         feature = self.item_embedding_modules[m_id](items)
         if self.norm_sbra_input:
             feature = nn.functional.normalize(feature, p=2, dim=-1)
@@ -225,7 +225,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         user_repr, pos_item_repres = self.forward(inputs=(user, pos))
         _, neg_item_repres = self.forward(inputs=(user, neg))
 
-        sampled_modalities_ids = np.random.choice(len(self.item_mods) + 1, 2, replace=False)
+        sampled_modalities_ids = np.random.choice(len(self.modalities) + 1, 2, replace=False)
 
         pos_item_repres = pos_item_repres[..., sampled_modalities_ids, :] # shape is [num_users, 2, embedding_dim]
         neg_item_repres = neg_item_repres[..., sampled_modalities_ids, :]

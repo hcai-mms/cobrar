@@ -1,0 +1,17 @@
+experiment:
+  backend: pytorch
+  models:
+    external.DeepMF:
+      # "optimized"
+      lr: [ 1.e-4 ]
+      # "optimized"
+      reg: [ 1.e-3 ]
+      # "optimized"
+      embedding_dim: 256 # [ 256, 128 ]
+      # "optimized"
+      user_mlp: [] # [ [ 512, 256 ], [256], [] ]
+      # "optimized"
+      item_mlp: [] # [ [ 1024, 512 ], [] ] # [ [1024, 512, 256], [1024, 512], [512, 256] ]
+      # "optimized"
+      neg_ratio: 5 # [ 5, 10, 20 ]
+      similarity: cosine
