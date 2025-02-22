@@ -7,15 +7,15 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-model_list=('itemknn' 'featureitemknn' 'lightgcn' 'lightgcn_m')
+model_list=('sibrar')
 
 emma_dataset_list=(
-    'emma_emotion' 'emma_audio' 'emma_textual' 'emma_visual' 'emma_textual_emotion'
-    'onion_emotion' 'onion_audio' 'onion_textual' 'onion_visual' 'onion_audio_emotion'
-    'emma_audio_emotion' 'emma_visual_emotion'
+    'emma_textual' 'emma_visual'
+    'emma_textual_emotion' 'emma_audio_emotion' 'emma_visual_emotion'
     'emma_audio_textual' 'emma_audio_visual' 'emma_textual_visual'
-    'emma_audio_textual_emotion' 'emma_audio_visual_emotion' 'emma_textual_visual_emotion'
-    'emma_audio_textual_visual' 'emma_audio_textual_visual_emotion')
+    'emma_audio_textual_emotion' 'emma_audio_visual_emotion'
+    'emma_textual_visual_emotion'
+    )
 
 onion_dataset_list=(
 'onion_textual_emotion' 'onion_visual_emotion'
@@ -34,13 +34,11 @@ else
     exit 1
 fi
 
-#dataset_list=('emma_textual_emotion')
-
 for dataset in "${dataset_list[@]}"; do
     for model in "${model_list[@]}"; do
             echo "model: $model"
             echo "dataset: $dataset"
-            sbatch --job-name=emo-rec --mail-user=andreas.peintner@uibk.ac.at --time=300:00:00 --mem=64G --gres=gpu:1 ~/jobs/single-node-gpu.job "conda run -n elliot python run_sep.py --data $dataset --model $model"
+            conda run -n test39 python run_sep.py --data $dataset --model $model
             sleep 1
     done
 done
