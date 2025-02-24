@@ -7,21 +7,23 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-model_list=('sibrar')
+model_list=('vbpr')
 
 emma_dataset_list=(
-    'emma_textual' 'emma_visual'
-    'emma_textual_emotion' 'emma_audio_emotion' 'emma_visual_emotion'
-    'emma_audio_textual' 'emma_audio_visual' 'emma_textual_visual'
+    'emma_visual_emotion'
+    'emma_textual_visual'
     'emma_audio_textual_emotion' 'emma_audio_visual_emotion'
     'emma_textual_visual_emotion'
     )
 
 onion_dataset_list=(
-'onion_textual_emotion' 'onion_visual_emotion'
-    'onion_audio_textual' 'onion_audio_visual' 'onion_textual_visual'
-    'onion_audio_textual_emotion' 'onion_audio_visual_emotion' 'onion_textual_visual_emotion'
-    'onion_audio_textual_visual' 'onion_audio_textual_visual_emotion'
+  'onion_audio'
+  'onion_audio_emotion' 'onion_audio_textual'
+  'onion_audio_textual_emotion' 'onion_audio_textual_visual'
+  'onion_audio_textual_visual_emotion'
+  'onion_audio_visual' 'onion_audio_visual_emotion'
+  'onion_emotion' 'onion_textual' 'onion_textual_emotion' 'onion_textual_visual' 'onion_textual_visual_emotion'
+  'onion_visual' 'onion_visual_emotion'
 )
 
 dataset=$1

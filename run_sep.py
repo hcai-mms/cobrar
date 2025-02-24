@@ -5,8 +5,10 @@ import argparse
 from utils import save_yaml, load_yaml, merge_dicts
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_audio')
-parser.add_argument('--model', type=str, default='sibrar')
+parser.add_argument('--data', type=str, default='onion_audio')
+# emma_audio_textual_emotion, emma_audio_visual_emotion, emma_textual_visual_emotion
+# emma_audio_textual, emma audio_visual, emma_audio_emotion, emma_textual_visual, emmma_textual_emotion, emma_visual_emotion
+parser.add_argument('--model', type=str, default='featureitemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
