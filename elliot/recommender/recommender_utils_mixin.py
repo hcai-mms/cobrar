@@ -22,51 +22,8 @@ class RecMixin(object):
                     t.set_postfix({'loss': f'{loss/steps:.5f}'})
                     t.update()
 
-            self.evaluate_wandb(it, loss/(it + 1))
+            self.evaluate(it, loss/(it + 1))
 
-
-    def evaluate_wandb(self, it=None, loss=0):
-        run = wandb.init(
-            # Set the project where this run will be logged
-            project="elliot",
-            # Track hyperparameters and run metadata
-            config=self.get_params(),
-        )
-
-        if (it is None) or (not (it + 1) % self._validation_rate):
-            recs = self.get_recommendations(self.evaluator.get_needed_recommendations())
-            result_dict = self.evaluator.eval(recs)
-
-            print(result_dict)
-
-            self._losses.append(loss)
-
-            self._results.append(result_dict)
-
-            if it is not None:
-                self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss/(it + 1):.5f}')
-            else:
-                self.logger.info(f'Finished')
-
-            if self._save_recs:
-                self.logger.info(f"Writing recommendations at: {self._config.path_output_rec_result}")
-                if it is not None:
-                    store_recommendation(recs[1], os.path.abspath(
-                        os.sep.join([self._config.path_output_rec_result, f"{self.name}_it={it + 1}.tsv"])))
-                else:
-                    store_recommendation(recs[1], os.path.abspath(
-                        os.sep.join([self._config.path_output_rec_result, f"{self.name}.tsv"])))
-
-            if (len(self._results) - 1) == self.get_best_arg():
-                if it is not None:
-                    self._params.best_iteration = it + 1
-                self.logger.info("******************************************")
-                self.best_metric_value = self._results[-1][self._validation_k]["val_results"][self._validation_metric]
-                if self._save_weights:
-                    if hasattr(self, "_model"):
-                        self._model.save_weights(self._saving_filepath)
-                    else:
-                        self.logger.warning("Saving weights FAILED. No model to save.")
 
     def evaluate(self, it=None, loss=0):
         if (it is None) or (not (it + 1) % self._validation_rate):

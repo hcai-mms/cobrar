@@ -49,6 +49,7 @@ class VBPR(RecMixin, BaseRecommenderModel):
 
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
+
         self._params_list = [
             ("_factors", "factors", "factors", 10, int, None),
             ("_learning_rate", "lr", "lr", 0.001, float, None),
@@ -91,6 +92,19 @@ class VBPR(RecMixin, BaseRecommenderModel):
                                 self._l_w,
                                 all_multimodal_features,
                                 self._seed)
+
+        wandb.init(
+            project=f"VBPR-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                "learning_rate": self._learning_rate,
+                "batch_size": self._batch_size,
+                "factors": self._factors,
+                "l_w": self._l_w,
+                "modalities": self._modalities,
+            },
+            reinit=True,
+        )
 
     @property
     def name(self):
@@ -145,10 +159,14 @@ class VBPR(RecMixin, BaseRecommenderModel):
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss / (it + 1):.5f}')
                 wandb.log(
                     {
-                        "epoch": it + 1,
+                        "epochs": it + 1,
                         "loss": loss / (it + 1),
-                    }
+                        # For now, we only log one metric
+                        "val_ndcg10": result_dict[10]['val_results']['nDCG'],
+                        "test_ndcg10": result_dict[10]['test_results']['nDCG'],
+                    },
                 )
+
             else:
                 self.logger.info(f'Finished')
 
