@@ -18,6 +18,11 @@ import elliot.hyperoptimization as ho
 from elliot.namespace.namespace_model_builder import NameSpaceBuilder
 from elliot.result_handler.result_handler import ResultHandler, HyperParameterStudy, StatTest
 from elliot.utils import logging as logging_project
+
+
+import wandb
+wandb.login()
+
 # np.random.default_rng(SEED))# https://github.com/hyperopt/hyperopt/issues/838
 # _rstate = np.random.RandomState(42)
 here = path.abspath(path.dirname(__file__))
@@ -186,7 +191,12 @@ def run_experiment(config_path: str = ''):
 
     # logger.info("End Post-Hoc scripts")
 
-def run_wandb_experiment(config_path: str = ''):
+def run_wandb_experiment(config_path, actual_config, dataset_name, model_name):
+    wandb.init(
+        project="emotion-music-recsys",
+        name=f"{dataset_name}-{model_name}",
+        config=actual_config,
+    )
     builder = NameSpaceBuilder(config_path, here, path.abspath(path.dirname(config_path)))
     base = builder.base
     config_test(builder, base)
