@@ -16,6 +16,7 @@ from elliot.recommender import BaseRecommenderModel
 from .VBPRModel import VBPRModel
 from elliot.recommender.recommender_utils_mixin import RecMixin
 from elliot.recommender.base_recommender_model import init_charger
+import wandb
 
 
 class VBPR(RecMixin, BaseRecommenderModel):
@@ -113,6 +114,7 @@ class VBPR(RecMixin, BaseRecommenderModel):
 
             self.evaluate(it, loss / (it + 1))
 
+
     def get_recommendations(self, k: int = 100):
         predictions_top_k_test = {}
         predictions_top_k_val = {}
@@ -141,6 +143,12 @@ class VBPR(RecMixin, BaseRecommenderModel):
 
             if it is not None:
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss / (it + 1):.5f}')
+                wandb.log(
+                    {
+                        "epoch": it + 1,
+                        "loss": loss / (it + 1),
+                    }
+                )
             else:
                 self.logger.info(f'Finished')
 

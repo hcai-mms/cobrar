@@ -16,6 +16,7 @@ import time
 from elliot.utils import logging
 
 from hyperopt import STATUS_OK
+import wandb
 
 
 class ModelCoordinator(object):
@@ -98,6 +99,9 @@ class ModelCoordinator(object):
         """
         sampled_namespace = SimpleNamespace(**args)
         model_params = SimpleNamespace(**self.params[0].__dict__)
+
+        # I think this is a dictionary with the hyperparameters
+        wandb.config.update(params)
 
         self.logger.info("Hyperparameter tuning exploration:")
         for (k, v) in sampled_namespace.__dict__.items():

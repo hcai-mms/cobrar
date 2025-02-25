@@ -192,10 +192,10 @@ def run_experiment(config_path: str = ''):
     # logger.info("End Post-Hoc scripts")
 
 def run_wandb_experiment(config_path, actual_config, dataset_name, model_name):
+    # https://docs.wandb.ai/guides/track/config/
     wandb.init(
         project="emotion-music-recsys",
         name=f"{dataset_name}-{model_name}",
-        config=actual_config,
     )
     builder = NameSpaceBuilder(config_path, here, path.abspath(path.dirname(config_path)))
     base = builder.base
@@ -240,11 +240,14 @@ def run_wandb_experiment(config_path, actual_config, dataset_name, model_name):
             model_placeholder = ho.ModelCoordinator(data_test, base.base_namespace, model_base, model_class,
                                                     test_fold_index)
             if isinstance(model_base, tuple):
+                # This happens if the model_base is a tuple, i.e., if we are doing a hyperparameter optimization
                 logger.info(f"Tuning begun for {model_class.__name__}\n")
                 trials = Trials()
                 print(type(_rstate))
-                fmin(model_placeholder.wandb_objective,
-                     space=model_base[1],
+                space = model_base[1]
+
+                best = fmin(fn=model_placeholder.wandb_objective,
+                     space=space,
                      algo=model_base[3],
                      trials=trials,
                      verbose=False,
