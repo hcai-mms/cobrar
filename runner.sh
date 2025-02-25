@@ -17,8 +17,9 @@ emma_dataset_list=(
     )
 
 onion_dataset_list=(
-  'onion_audio'
-  'onion_audio_emotion' 'onion_audio_textual'
+  # 'onion_audio'
+  # 'onion_audio_emotion'
+  'onion_audio_textual'
   'onion_audio_textual_emotion' 'onion_audio_textual_visual'
   'onion_audio_textual_visual_emotion'
   'onion_audio_visual' 'onion_audio_visual_emotion'
