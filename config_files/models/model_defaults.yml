@@ -10,8 +10,6 @@ epochs: 200
 batch_size: 512
 factors: 64
 factors_multimod: 64
-modalities: ('audio', 'emotion')
-loaders: ('AudioAttribute', 'EmotionAttribute')
 seed: 123
 early_stopping:
   verbose: False

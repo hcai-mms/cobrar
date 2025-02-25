@@ -13,14 +13,19 @@ class Similarity(object):
     Simple kNN class
     """
 
-    def __init__(self, data, multimodal_features, num_neighbors, similarity, implicit, modal_sim_factor):
+    def __init__(self, data, num_neighbors, similarity, implicit, modalities, multimodal_features, aggregation, modal_sim_factor):
         self._data = data
         self._ratings = data.train_dict
-        self._multimodal_features = multimodal_features
         self._num_neighbors = num_neighbors
         self._similarity = similarity
         self._implicit = implicit
+
+        self._multimodal_features = multimodal_features
         self._modal_sim_factor = modal_sim_factor
+        self.modalities = modalities
+        self.aggregation = aggregation
+
+        self.concat_features = np.concatenate(self._multimodal_features, axis=1)
 
         if self._implicit:
             self._URM = self._data.sp_i_train
@@ -76,28 +81,39 @@ class Similarity(object):
 
     def process_similarity(self, similarity):
         if similarity == "cosine":
-            for m_id, m in enumerate(self._multimodal_features):
-                if m_id == 0:
-                    self._att_similarity_matrix = cosine_similarity(m)
-                else:
-                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
-            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
+
+            if self.aggregation == "ensemble":
+                att_matrices = []
+                for m_id, m in enumerate(self._multimodal_features):
+                    att_matrices.append(cosine_similarity(m))
+                self._att_similarity_matrix = np.mean(att_matrices, axis=0)
+            else:
+                self._att_similarity_matrix = cosine_similarity(self.concat_features)
+
             self._urm_similarity_matrix = cosine_similarity(self._URM.T)
+
         elif similarity == "dot":
-            for m_id, m in enumerate(self._multimodal_features):
-                if m_id == 0:
-                    self._att_similarity_matrix = m @ m.T
-                else:
-                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
-            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
+
+            if self.aggregation == "ensemble":
+                att_matrices = []
+                for m_id, m in enumerate(self._multimodal_features):
+                    att_matrices.append(m @ m.T)
+                self._att_similarity_matrix = np.mean(att_matrices, axis=0)
+            else:
+                self._att_similarity_matrix = self.concat_features @ self.concat_features.T
+
             self._urm_similarity_matrix = (self._URM.T @ self._URM).toarray()
+
         elif similarity == "euclidean":
-            for m_id, m in enumerate(self._multimodal_features):
-                if m_id == 0:
-                    self._att_similarity_matrix = (1 / (1 + euclidean_distances(m)))
-                else:
-                    self._att_similarity_matrix = self._att_similarity_matrix + cosine_similarity(m)
-            self._att_similarity_matrix = self._att_similarity_matrix / len(self._multimodal_features)
+
+            if self.aggregation == "ensemble":
+                att_matrices = []
+                for m_id, m in enumerate(self._multimodal_features):
+                    att_matrices.append(1 / (1 + euclidean_distances(m)))
+                self._att_similarity_matrix = np.mean(att_matrices, axis=0)
+            else:
+                self._att_similarity_matrix = (1 / (1 + euclidean_distances(self.concat_features)))
+
             self._urm_similarity_matrix = (1 / (1 + euclidean_distances(self._URM.T)))
 
         else:
