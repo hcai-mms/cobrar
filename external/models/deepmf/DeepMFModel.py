@@ -98,17 +98,26 @@ class DeepMFModel(torch.nn.Module, ABC):
     def forward(self, inputs, **kwargs):
         users, items = inputs
 
-        user_tensor = torch.tensor(users).to(self.device)
-        # user_tensor = users.clone().detach() or the
-        # same
-        # with .requires_grad_(True)
 
-        items_tensor = torch.tensor(items).to(self.device)
+        # this should be used in training
+        user_tensor = torch.from_numpy(users).to(self.device)
+        items_tensor = torch.from_numpy(items).to(self.device)
 
         u_repr = self.get_user_representations(user_tensor)
         i_repr = self.get_item_representations(items_tensor)
         return u_repr, i_repr
 
+    def forward_eval(self, inputs, **kwargs):
+
+        user_tensor, items_tensor = inputs
+        # this should be used in eval
+        # users, items = inputs
+        # user_tensor = users.clone().detach().to(self.device)#.requires_grad_(True)
+        # items_tensor = items.clone().detach().to(self.device)#.requires_grad_(True)
+
+        u_repr = self.get_user_representations(user_tensor)
+        i_repr = self.get_item_representations(items_tensor)
+        return u_repr, i_repr
 
     def predict(self, start_user, stop_user, **kwargs):
         """
@@ -116,7 +125,7 @@ class DeepMFModel(torch.nn.Module, ABC):
         """
         user = torch.arange(start_user, stop_user).to(self.device)
         item = torch.arange(self.num_items).to(self.device)
-        user_repr, item_repr = self.forward(inputs=(user, item))
+        user_repr, item_repr = self.forward_eval(inputs=(user, item))
         user_repr, item_repr = user_repr.to(self.device), item_repr.to(self.device)
         if self.similarity == 'cosine':
             preds = self.cosine_func(user_repr[:, None, :], item_repr)

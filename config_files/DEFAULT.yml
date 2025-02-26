@@ -2,24 +2,24 @@ experiment:
   #backend: pytorch
   data_config:
     strategy: dataset
-    dataset_path: ../dataset/{0}/interactions.tsv
+    dataset_path: /opt/datasets/Music4All/music4all/onion_elliot/{0}/interactions.tsv
     side_information:
       # - dataloader: VisualAttribute
-      #   visual_features: ../dataset/{0}/visual_embeddings/resnet
+      #   visual_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/visual_embeddings/resnet
       # - dataloader: TextualAttribute
-      #   textual_features: ../dataset/{0}/textual_embeddings/bert
+      #   textual_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/textual_embeddings/bert
       # - dataloader: AudioAttribute
-      #   audio_features: ../dataset/{0}/audio_embeddings/musicnn
+      #   audio_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/audio_embeddings/musicnn
       - dataloader: EmotionCategoricalAttributes
-        emotion_categorical_features: ../dataset/{0}/emotion_embeddings/gems
+        emotion_categorical_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/emotion_embeddings/gems
       - dataloader: EmotionAttribute
-        emotion_features: ../dataset/{0}/emotion_embeddings/gems
+        emotion_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/emotion_embeddings/gems
   prefiltering:
     strategy: iterative_k_core
     core: 5
   splitting:
     #save_on_disk: True
-    #save_folder: ../dataset/{0}/splits
+    #save_folder: /opt/datasets/Music4All/music4all/onion_elliot/{0}/splits
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2

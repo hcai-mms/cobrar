@@ -2,6 +2,9 @@ experiment:
   backend: pytorch
   models:
     external.BPRMF:
-      lr: [0.0001, 0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512, 1024]
-      l_w: [1e-5, 0.01, 0.1, 1]
+      lr: [ 1.e-4,  1.e-3,  1.e-2]
+      batch_size: [ 128, 256, 512, 1024 ]
+      factors: [ 256, 128, 64 ]
+      l_w: [  1.e-3,  1.e-2,  1.e-1 ]
+      # I experience that 200 is too few on onion
+      epochs: 500

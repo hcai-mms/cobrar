@@ -4,6 +4,7 @@ slurm-*
 .vscode
 results/emma
 results/onion
+results/onion_umap
 results_old/
 data
 data/
