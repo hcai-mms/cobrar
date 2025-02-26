@@ -49,6 +49,7 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
             ("_implicit", "implicit", "bin", False, None, None),
             ("_modalities", "modalities", "modalites", "('visual','textual')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
+            ("_aggregation", "aggregation", "aggregation", 'mean', str, None),
             ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
         ]
@@ -66,10 +67,12 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
                 f'''_side_{self._modalities[m_id]}''').object.get_all_features())
 
         self._model = Similarity(data=self._data,
-                                 multimodal_features=all_multimodal_features,
                                  num_neighbors=self._num_neighbors,
                                  similarity=self._similarity,
                                  implicit=self._implicit,
+                                 modalities=self._modalities,
+                                 multimodal_features=all_multimodal_features,
+                                 aggregation=self._aggregation,
                                  modal_sim_factor=self._modal_sim_factor)
 
     def get_single_recommendation(self, mask, k, *args):

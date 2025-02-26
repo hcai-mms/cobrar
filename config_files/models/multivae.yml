@@ -1,9 +1,0 @@
-experiment:
-  models:
-    MultiVAE:
-      lr: [0.0005, 0.001, 0.005, 0.01]
-      batch_size: [128, 256, 512]
-      intermediate_dim: [300, 400, 500]
-      latent_dim: [100, 200, 300]
-      dropout_pkeep: 1
-      reg_lambda: [0.1, 0.0, 10]
