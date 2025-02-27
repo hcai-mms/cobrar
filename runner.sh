@@ -7,7 +7,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-model_list=('itemknn' 'featureitemknn' 'lightgcn' 'lightgcn_m')
+model_list=('itemknn' 'featureitemknn' 'lightgcn' 'lightgcnm')
 
 emma_dataset_list=(
     'emma_emotion' 'emma_audio' 'emma_textual' 'emma_visual' 'emma_textual_emotion'
