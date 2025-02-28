@@ -8,8 +8,8 @@ import wandb
 import time
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_audio')
-parser.add_argument('--model', type=str, default='deepmf')
+parser.add_argument('--data', type=str, default='emma_audio_textual_visual_emotion')
+parser.add_argument('--model', type=str, default='sibrar')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")

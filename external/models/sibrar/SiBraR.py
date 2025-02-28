@@ -101,6 +101,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
                     # "random_seed": self._seed,
                 },
                 **{f"mid_layers-{ii}": layer for ii, layer in enumerate(self._mid_layers)},
+                **{f"item_feature-{ii}": feature for ii, feature in enumerate(self._modalities)},
             },
             reinit=True,
         )
