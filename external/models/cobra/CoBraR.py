@@ -11,6 +11,8 @@ from elliot.recommender.base_recommender_model import init_charger
 from ..deepmf.DeepMF import DeepMF
 from .CoBraRModel import CoBraRModel
 
+import wandb
+
 class CoBraR(DeepMF):
     r"""
         Deep Matrix Factorization Models for Recommender Systems.
@@ -65,6 +67,26 @@ class CoBraR(DeepMF):
             learning_rate=self._learning_rate,
             mu=self._mu,
             random_seed=self._seed
+        )
+        wandb.init(
+            project=f"CoBraR-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                **{
+                    "learning_rate": self._learning_rate,
+                    "factors": self._embedding_dim,
+                    "reg": self._reg,
+                    "similarity": self._similarity,
+                    "max_ratings": self._max_ratings,
+                    "batch_size": self._batch_size,
+                    "neg_ratio": self._neg_ratio,
+                    "mu": self._mu,
+                },
+                **{f"user_layer-{ii}": layer for ii, layer in enumerate(self._user_mlp)},
+                **{f"item_layer-{ii}": layer for ii, layer in enumerate(self._item_mlp)},
+                **{f"collaborative_branch-{ii}": layer for ii, layer in enumerate(self._collaborative_branch)},
+            },
+            reinit=True,
         )
 
     @property

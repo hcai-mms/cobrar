@@ -7,8 +7,8 @@ from utils import save_yaml, load_yaml, merge_dicts
 import wandb
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='onion_audio_emotion')
-parser.add_argument('--model', type=str, default='featureitemknn')
+parser.add_argument('--data', type=str, default='ml1m')
+parser.add_argument('--model', type=str, default='bprmf')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
