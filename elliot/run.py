@@ -18,8 +18,11 @@ import elliot.hyperoptimization as ho
 from elliot.namespace.namespace_model_builder import NameSpaceBuilder
 from elliot.result_handler.result_handler import ResultHandler, HyperParameterStudy, StatTest
 from elliot.utils import logging as logging_project
+
+
+
 # np.random.default_rng(SEED))# https://github.com/hyperopt/hyperopt/issues/838
-# _rstate = np.random.RandomState(42)
+# _rstate = np.random.RandomState(c42)
 here = path.abspath(path.dirname(__file__))
 _rstate = np.random.default_rng(42)
 # print(type(_rstate))
@@ -37,7 +40,7 @@ print(u'''
          \\///////////////   \\/////////   \\/////////   \\///      \\/////          \\/////    
          ''')
 
-def run_experiment(config_path: str = ''):
+def run_experiment(config_path: str = '', dataset_name: str = '', model_name: str=''):
     builder = NameSpaceBuilder(config_path, here, path.abspath(path.dirname(config_path)))
     base = builder.base
     config_test(builder, base)

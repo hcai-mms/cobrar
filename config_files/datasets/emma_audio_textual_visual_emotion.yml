@@ -1,0 +1,14 @@
+modalities: ('audio', 'textual', 'visual', 'emotion')
+loaders: ('AudioAttribute', 'TextualAttribute', 'VisualAttribute', 'EmotionAttribute')
+experiment:
+  dataset: emma
+  data_config:
+    side_information:
+      - dataloader: AudioAttribute
+        audio_features: ../dataset/{0}/audio_embeddings/maest
+      - dataloader: TextualAttribute
+        textual_features: ../dataset/{0}/textual_embeddings/bert
+      - dataloader: VisualAttribute
+        visual_features: ../dataset/{0}/visual_embeddings/resnet
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems

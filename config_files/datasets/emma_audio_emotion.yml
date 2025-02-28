@@ -1,0 +1,10 @@
+modalities: ('audio', 'emotion')
+loaders: ('AudioAttribute', 'EmotionAttribute')
+experiment:
+  dataset: emma
+  data_config:
+    side_information:
+      - dataloader: AudioAttribute
+        audio_features: ../dataset/{0}/audio_embeddings/maest
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems

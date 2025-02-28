@@ -9,6 +9,7 @@ __email__ = 'vitowalter.anelli@poliba.it, claudio.pomo@poliba.it'
 
 import os
 import shutil
+import datetime
 
 
 def manage_directories(path_output_rec_result, path_output_rec_weight, path_output_rec_performance):
@@ -38,7 +39,11 @@ def manage_directories(path_output_rec_result, path_output_rec_weight, path_outp
 
 def build_model_folder(path_output_rec_weight, model):
     if not os.path.exists(os.path.abspath(os.sep.join([path_output_rec_weight, model]))):
-        os.makedirs(os.path.abspath(os.sep.join([path_output_rec_weight, model])))
+        try:
+            os.makedirs(os.path.abspath(os.sep.join([path_output_rec_weight, model])))
+        except OSError as e:
+            print("model folder too long! shortening it with timestamp...be aware.")
+            os.makedirs(os.path.abspath(os.sep.join([path_output_rec_weight, datetime.datetime.now().strftime("%Y%m%d-%H%M%S")])))
     # if not os.path.exists(os.path.dirname(f'{path_output_rec_weight}{model}/')):
     #     os.makedirs(os.path.dirname(f'{path_output_rec_weight}{model}/'))
 

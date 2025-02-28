@@ -1,0 +1,8 @@
+modalities: ('emotion', )
+loaders: ('EmotionAttribute', )
+experiment:
+  dataset: onion
+  data_config:
+    side_information:
+      - dataloader: EmotionAttribute
+        emotion_features: ../dataset/{0}/emotion_embeddings/gems
