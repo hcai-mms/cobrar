@@ -13,6 +13,7 @@ from .LightGCNModel import LightGCNModel
 from torch_sparse import SparseTensor
 
 import math
+import wandb
 
 
 class LightGCN(RecMixin, BaseRecommenderModel):
@@ -83,6 +84,22 @@ class LightGCN(RecMixin, BaseRecommenderModel):
             random_seed=self._seed
         )
 
+        wandb.init(
+            project=f"LightGCN-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                **{
+                    "learning_rate": self._learning_rate,
+                    "batch_size": self._batch_size,
+                    "factors": self._factors,
+                    "l_w": self._l_w,
+                    "n_layers": self._n_layers,
+                    "normalize": self._normalize,
+                }
+            },
+            reinit=True,
+        )
+
     @property
     def name(self):
         return "LightGCN" \
@@ -139,6 +156,16 @@ class LightGCN(RecMixin, BaseRecommenderModel):
 
             if it is not None:
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss/(it + 1):.5f}')
+                wandb.log(
+                    {
+                        "epochs": it + 1,
+                        # for now it does not allow logging the two losses separately
+                        "loss": loss / (it + 1),
+                        # For now, we only log one metric
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
+                    },
+                )
             else:
                 self.logger.info(f'Finished')
 

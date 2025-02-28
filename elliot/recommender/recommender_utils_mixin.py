@@ -4,7 +4,9 @@ import numpy as np
 from tqdm import tqdm
 
 from elliot.utils.write import store_recommendation
+
 import wandb
+
 
 class RecMixin(object):
 
@@ -24,7 +26,6 @@ class RecMixin(object):
 
             self.evaluate(it, loss/(it + 1))
 
-
     def evaluate(self, it=None, loss=0):
         if (it is None) or (not (it + 1) % self._validation_rate):
             recs = self.get_recommendations(self.evaluator.get_needed_recommendations())
@@ -34,8 +35,27 @@ class RecMixin(object):
 
             self._results.append(result_dict)
 
+            if it is None:
+                wandb.log(
+                    {
+                        # For now, we only log one metric
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
+                    },
+                )
+
             if it is not None:
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss/(it + 1):.5f}')
+                wandb.log(
+                    {
+                        "epochs": it + 1,
+                        # for now it does not allow logging the two losses separately
+                        "loss": loss / (it + 1),
+                        # For now, we only log one metric
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
+                    },
+                )
             else:
                 self.logger.info(f'Finished')
 
@@ -58,6 +78,8 @@ class RecMixin(object):
                         self._model.save_weights(self._saving_filepath)
                     else:
                         self.logger.warning("Saving weights FAILED. No model to save.")
+
+
 
     def get_recommendations(self, k: int = 100):
         predictions_top_k_test = {}
