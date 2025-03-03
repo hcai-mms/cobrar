@@ -31,5 +31,6 @@ for _backend in sys.modules["external"].backend:
         from .bivae.BiVAE import BiVAE
         from .bivae_m.BiVAEM import BiVAEM
         from .deepmf.DeepMF import DeepMF
+        from .cobra.CoBraR import CoBraR
 
     from .feature_item_knn.feature_item_knn import FeatureItemKNN

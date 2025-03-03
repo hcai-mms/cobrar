@@ -76,40 +76,40 @@ class DeepMF(RecMixin, BaseRecommenderModel):
         self._ratings = self._data.train_dict
         self._sp_i_train = self._data.sp_i_train
         self._i_items_set = list(range(self._num_items))
-
-        self._model = DeepMFModel(
-            num_users=self._num_users,
-            num_items=self._num_items,
-            embedding_dim=self._embedding_dim,
-            user_mlp=self._user_mlp,
-            item_mlp=self._item_mlp,
-            reg=self._reg,
-            similarity=self._similarity,
-            max_ratings=self._max_ratings,
-            sp_i_train_ratings=self._data.sp_i_train_ratings,
-            learning_rate=self._learning_rate,
-            mu=self._mu,
-            random_seed=self._seed
-        )
-        wandb.init(
-            project=f"DeepMF-{config.data_config.dataset_path.split('/')[-2]}",
-            name=self.name,
-            config={
-                **{
-                    "learning_rate": self._learning_rate,
-                    "factors": self._embedding_dim,
-                    "reg": self._reg,
-                    "similarity": self._similarity,
-                    "max_ratings": self._max_ratings,
-                    "batch_size": self._batch_size,
-                    "neg_ratio": self._neg_ratio,
-                    "mu": self._mu,
+        if self.__class__ == DeepMF:
+            self._model = DeepMFModel(
+                num_users=self._num_users,
+                num_items=self._num_items,
+                embedding_dim=self._embedding_dim,
+                user_mlp=self._user_mlp,
+                item_mlp=self._item_mlp,
+                reg=self._reg,
+                similarity=self._similarity,
+                max_ratings=self._max_ratings,
+                sp_i_train_ratings=self._data.sp_i_train_ratings,
+                learning_rate=self._learning_rate,
+                mu=self._mu,
+                random_seed=self._seed
+            )
+            wandb.init(
+                project=f"DeepMF-{config.data_config.dataset_path.split('/')[-2]}",
+                name=self.name,
+                config={
+                    **{
+                        "learning_rate": self._learning_rate,
+                        "factors": self._embedding_dim,
+                        "reg": self._reg,
+                        "similarity": self._similarity,
+                        "max_ratings": self._max_ratings,
+                        "batch_size": self._batch_size,
+                        "neg_ratio": self._neg_ratio,
+                        "mu": self._mu,
+                    },
+                    **{f"user_layer-{ii}": layer for ii, layer in enumerate(self._user_mlp)},
+                    **{f"item_layer-{ii}": layer for ii, layer in enumerate(self._item_mlp)},
                 },
-                **{f"user_layer-{ii}": layer for ii, layer in enumerate(self._user_mlp)},
-                **{f"item_layer-{ii}": layer for ii, layer in enumerate(self._item_mlp)},
-            },
-            reinit=True,
-        )
+                reinit=True,
+            )
     @property
     def name(self):
         return "DeepMF"\

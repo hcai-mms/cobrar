@@ -1,13 +1,13 @@
 experiment:
   backend: pytorch
   models:
-    external.DeepMF:
+    external.CoBraR:
       #
-      lr: [ 1.e-4,  1.e-3,  1.e-2  ]
+      lr: [ 1.e-5,  1.e-4,  1.e-3,  1.e-2 ]
       # not really relevant
       batch_size: [ 128 ]
       # not really relevant
-      reg: [ 1.e-3  ]
+      reg: [ 1.e-3 ]
       # already 128 gives OOM on rk4 with batch size 256 and no intermediate layers
       # 64 still to try
       embedding_dim: [ 256, 128, 64 ] # [ 256, 128 ]
@@ -15,6 +15,8 @@ experiment:
       user_mlp: [ [] ]
       #
       item_mlp: [ [] ] # [ [ 1024, 512 ], [] ] # [ [1024, 512, 256], [1024, 512], [512, 256] ]
+      #
+      collaborative_branch: [ [ 1024, 512 ], [512], [1024, 512, 256], [512, 256], [256] ] # [ [1024, 512, 256], [1024, 512], [512, 256] ]
       #
       neg_ratio: [ 5 ] # 1 , 10, 20, 100 ]
       similarity: cosine
