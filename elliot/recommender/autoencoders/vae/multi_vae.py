@@ -15,6 +15,7 @@ from elliot.recommender.autoencoders.vae.multi_vae_model import VariationalAutoE
 from elliot.recommender.base_recommender_model import init_charger
 from elliot.recommender.recommender_utils_mixin import RecMixin
 
+import wandb
 
 class MultiVAE(RecMixin, BaseRecommenderModel):
     r"""
@@ -24,7 +25,7 @@ class MultiVAE(RecMixin, BaseRecommenderModel):
 
     Args:
         intermediate_dim: Number of intermediate dimension
-        latent_dim: Number of latent factors
+        factors: Number of latent factors
         reg_lambda: Regularization coefficient
         lr: Learning rate
         dropout_pkeep: Dropout probaility
@@ -40,7 +41,7 @@ class MultiVAE(RecMixin, BaseRecommenderModel):
           epochs: 10
           batch_size: 512
           intermediate_dim: 600
-          latent_dim: 200
+          factors: 200
           reg_lambda: 0.01
           lr: 0.001
           dropout_pkeep: 1
@@ -55,7 +56,7 @@ class MultiVAE(RecMixin, BaseRecommenderModel):
 
         self._params_list = [
             ("_intermediate_dim", "intermediate_dim", "intermediate_dim", 600, int, None),
-            ("_latent_dim", "latent_dim", "latent_dim", 200, int, None),
+            ("_factors", "factors", "factors", 200, int, None),
             ("_lambda", "reg_lambda", "reg_lambda", 0.01, None, None),
             ("_learning_rate", "lr", "lr", 0.001, None, None),
             ("_dropout_rate", "dropout_pkeep", "dropout_pkeep", 1, None, None),
@@ -72,11 +73,25 @@ class MultiVAE(RecMixin, BaseRecommenderModel):
 
         self._model = VariationalAutoEncoder(self._num_items,
                                              self._intermediate_dim,
-                                             self._latent_dim,
+                                             self._factors,
                                              self._learning_rate,
                                              self._dropout_rate,
                                              self._lambda,
                                              self._seed)
+        wandb.init(
+            project=f"MultVAE-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                **{
+                    "learning_rate": self._learning_rate,
+                    "factors": self._factors,
+                    "dropout_rate": self._dropout_rate,
+                    "intermediate_dim": self._intermediate_dim,
+                    "lambda": self._lambda,
+                },
+            },
+            reinit=True,
+        )
 
         # the total number of gradient updates for annealing
         self._total_anneal_steps = 200000

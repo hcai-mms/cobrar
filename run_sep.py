@@ -8,7 +8,7 @@ import wandb
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
 parser.add_argument('--data', type=str, default='ml1m')
-parser.add_argument('--model', type=str, default='cobrar')
+parser.add_argument('--model', type=str, default='multivae')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")

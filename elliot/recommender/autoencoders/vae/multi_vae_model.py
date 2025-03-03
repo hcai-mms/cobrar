@@ -32,7 +32,7 @@ class Sampling(layers.Layer):
 class Encoder(layers.Layer):
     """Maps MNIST digits to a triplet (z_mean, z_log_var, z)."""
 
-    def __init__(self, latent_dim=200,
+    def __init__(self, factors=200,
                  intermediate_dim=600,
                  dropout_rate=0,
                  regularization_lambda=0.01,
@@ -45,10 +45,10 @@ class Encoder(layers.Layer):
                                        activation="tanh",
                                        kernel_initializer=keras.initializers.GlorotNormal(),
                                        kernel_regularizer=keras.regularizers.l2(regularization_lambda))
-        self.dense_mean = layers.Dense(latent_dim,
+        self.dense_mean = layers.Dense(factors,
                                        kernel_initializer=keras.initializers.GlorotNormal(),
                                        kernel_regularizer=keras.regularizers.l2(regularization_lambda))
-        self.dense_log_var = layers.Dense(latent_dim,
+        self.dense_log_var = layers.Dense(factors,
                                        kernel_initializer=keras.initializers.GlorotNormal(),
                                        kernel_regularizer=keras.regularizers.l2(regularization_lambda))
         self.sampling = Sampling()
@@ -89,7 +89,7 @@ class VariationalAutoEncoder(keras.Model):
     def __init__(self,
                  original_dim,
                  intermediate_dim=600,
-                 latent_dim=200,
+                 factors=200,
                  learning_rate=0.001,
                  dropout_rate=0,
                  regularization_lambda=0.01,
@@ -99,7 +99,7 @@ class VariationalAutoEncoder(keras.Model):
         super().__init__(name=name, **kwargs)
         tf.random.set_seed(random_seed)
         self.original_dim = original_dim
-        self.encoder = Encoder(latent_dim=latent_dim,
+        self.encoder = Encoder(factors=factors,
                                intermediate_dim=intermediate_dim,
                                dropout_rate=dropout_rate,
                                regularization_lambda=regularization_lambda)
