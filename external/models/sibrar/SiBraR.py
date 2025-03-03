@@ -14,6 +14,8 @@ from elliot.recommender.recommender_utils_mixin import RecMixin
 from elliot.recommender.base_recommender_model import init_charger
 import math
 
+import wandb
+
 # sp_i_train_ratings = self._data.sp_i_train_ratings,
 # random_seed = self._seed,
 # item_multimodal_features = all_multimodal_features,  # actual tensors
@@ -77,6 +79,31 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             norm_sbra_input=self._norm_sbra_input,
             item_multimodal_features=all_multimodal_features,  # dictionary of actual tensors
             random_seed=self._seed,
+        )
+        self.run = wandb.init(
+            project=f"SiBraR-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                **{
+                    "lr": self._lr,
+                    "input_dim": self._input_dim,
+                    "w_decay": self._w_decay,
+                    "cl_weight": self._cl_weight,
+                    "cl_temp": self._cl_temp,
+                    # "mid_layers": self._mid_layers,
+                    "factors": self._emb_dim,
+                    # "modalities": self._modalities,
+                    "u_prof": self._u_prof,
+                    "dropout": self._dropout,
+                    "norm_input_feat": self._norm_input_feat,
+                    "norm_sbra_input": self._norm_sbra_input,
+                    # "item_multimodal_features": all_multimodal_features,  # dictionary of actual tensors
+                    # "random_seed": self._seed,
+                },
+                **{f"mid_layers-{ii}": layer for ii, layer in enumerate(self._mid_layers)},
+                **{f"item_feature-{ii}": feature for ii, feature in enumerate(self._modalities)},
+            },
+            reinit=True,
         )
 
 
@@ -149,6 +176,16 @@ class SiBraR(RecMixin, BaseRecommenderModel):
 
             if it is not None:
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss / (it + 1):.5f}')
+                wandb.log(
+                    {
+                        "epochs": it + 1,
+                        # for now it does not allow logging the two losses separately
+                        "loss": loss / (it + 1),
+                        # For now, we only log one metric
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
+                    },
+                )
             else:
                 self.logger.info(f'Finished')
 

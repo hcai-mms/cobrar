@@ -1,7 +1,8 @@
 experiment:
   data_config:
     strategy: dataset
-    dataset_path: /opt/datasets/Music4All/music4all/onion_elliot/{0}/interactions.tsv
+#    dataset_path: /opt/datasets/Music4All/music4all/onion_elliot/{0}/interactions.tsv
+    dataset_path: ../dataset/{0}/interactions.tsv
   prefiltering:
     strategy: iterative_k_core
     core: 5
@@ -16,8 +17,8 @@ experiment:
       test_ratio: 0.1
   top_k: 50
   evaluation:
-    cutoffs: [ 1, 5, 10, 20]
-    simple_metrics: [ Recall, Precision, nDCG, MRR, HR] #, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
+    cutoffs: [ 5 ]
+    simple_metrics: [ nDCG ] # Recall, Precision, nDCG, MRR, HR] #, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
     paired_ttest: False
     wilcoxon_test: False
   gpu: 0

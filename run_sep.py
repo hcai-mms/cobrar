@@ -4,9 +4,11 @@ from elliot.run import run_experiment
 import argparse
 from utils import save_yaml, load_yaml, merge_dicts
 
+import wandb
+
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_emotion')
-parser.add_argument('--model', type=str, default='lightgcnm')
+parser.add_argument('--data', type=str, default='onion_audio_emotion')
+parser.add_argument('--model', type=str, default='featureitemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
@@ -34,4 +36,5 @@ config = {key: config[key] for key in config.keys() & {'experiment'}}
 
 save_yaml(config, "config_files/tmp.yml")
 
-run_experiment("config_files/tmp.yml")
+wandb.login()
+run_experiment("config_files/tmp.yml", dataset_name=args.data, model_name=args.model)

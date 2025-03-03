@@ -10,6 +10,8 @@ from elliot.recommender import BaseRecommenderModel
 from elliot.recommender.base_recommender_model import init_charger
 from elliot.recommender.recommender_utils_mixin import RecMixin
 
+import wandb
+
 # from elliot.dataset.samplers import pointwise_pos_neg_ratio_ratings_sampler as pws
 # from elliot.recommender.recommender_utils_mixin import RecMixin
 # from elliot.recommender.base_recommender_model import BaseRecommenderModel
@@ -89,7 +91,25 @@ class DeepMF(RecMixin, BaseRecommenderModel):
             mu=self._mu,
             random_seed=self._seed
         )
-
+        wandb.init(
+            project=f"DeepMF-{config.data_config.dataset_path.split('/')[-2]}",
+            name=self.name,
+            config={
+                **{
+                    "learning_rate": self._learning_rate,
+                    "factors": self._embedding_dim,
+                    "reg": self._reg,
+                    "similarity": self._similarity,
+                    "max_ratings": self._max_ratings,
+                    "batch_size": self._batch_size,
+                    "neg_ratio": self._neg_ratio,
+                    "mu": self._mu,
+                },
+                **{f"user_layer-{ii}": layer for ii, layer in enumerate(self._user_mlp)},
+                **{f"item_layer-{ii}": layer for ii, layer in enumerate(self._item_mlp)},
+            },
+            reinit=True,
+        )
     @property
     def name(self):
         return "DeepMF"\
@@ -143,6 +163,16 @@ class DeepMF(RecMixin, BaseRecommenderModel):
 
             if it is not None:
                 self.logger.info(f'Epoch {(it + 1)}/{self._epochs} loss {loss/(it + 1):.5f}')
+                wandb.log(
+                    {
+                        "epochs": it + 1,
+                        "loss": loss / (it + 1),
+                        # For now, we only log one metric
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
+                    },
+                )
+
             else:
                 self.logger.info(f'Finished')
 
