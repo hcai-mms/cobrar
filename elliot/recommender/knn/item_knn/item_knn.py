@@ -79,7 +79,7 @@ class ItemKNN(RecMixin, BaseRecommenderModel):
             self._model = Similarity(data=self._data, num_neighbors=self._num_neighbors, similarity=self._similarity, implicit=self._implicit)
 
         wandb.init(
-            project=f"ItemKnn-{config.data_config.dataset_path.split('/')[-2]}",
+            project=f"ItemKNN-{config.data_config.dataset_path.split('/')[-2]}",
             name=self.name,
             config={
                 **{

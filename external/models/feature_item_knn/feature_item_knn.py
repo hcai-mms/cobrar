@@ -77,7 +77,7 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
                                  modal_sim_factor=self._modal_sim_factor)
 
         wandb.init(
-            project=f"FeatureItemKnn-{config.data_config.dataset_path.split('/')[-2]}",
+            project=f"FeatureItemKNN-{config.data_config.dataset_path.split('/')[-2]}",
             name=self.name,
             config={
                 **{
