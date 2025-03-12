@@ -162,8 +162,8 @@ class VBPR(RecMixin, BaseRecommenderModel):
                         "epochs": it + 1,
                         "loss": loss / (it + 1),
                         # For now, we only log one metric
-                        "val_ndcg10": result_dict[10]['val_results']['nDCG'],
-                        "test_ndcg10": result_dict[10]['test_results']['nDCG'],
+                        "val_ndcg5": result_dict[5]['val_results']['nDCG'],
+                        "test_ndcg5": result_dict[5]['test_results']['nDCG'],
                     },
                 )
 
