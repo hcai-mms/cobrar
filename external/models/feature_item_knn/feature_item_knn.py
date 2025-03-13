@@ -121,5 +121,5 @@ class FeatureItemKNN(RecMixin, BaseRecommenderModel):
 
         print(f"Transactions: {self._data.transactions}")
 
-        self.evaluate()
+        self.evaluate(wandb_log=True)
 

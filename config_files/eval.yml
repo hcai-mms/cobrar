@@ -1,0 +1,5 @@
+experiment:
+    dataset: emma
+    models:
+        ProxyRecommender:
+            path: ./results/emma/recs/FeatureItemKNN_nn=20_sim=cosine_msf=0$15_bin=False_modalites='emotion'_aggregation=concat_loads='EmotionAttribute'.tsv

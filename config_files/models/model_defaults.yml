@@ -1,8 +1,8 @@
 meta:
   hyper_opt_alg: grid
   verbose: False
-  save_weights: False
-  save_recs: False
+  save_weights: True
+  save_recs: True
   validation_rate: 1
   validation_metric: nDCG@5
   restore: False
