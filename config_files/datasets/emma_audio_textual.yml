@@ -1,10 +1,11 @@
 modalities: ('audio', 'textual')
 loaders: ('AudioAttribute', 'TextualAttribute')
 experiment:
+  gpu: 2
   dataset: emma
   data_config:
     side_information:
       - dataloader: AudioAttribute
-        audio_features: ../dataset/{0}/audio_embeddings/maest
+        audio_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/audio_embeddings/maest
       - dataloader: TextualAttribute
-        textual_features: ../dataset/{0}/textual_embeddings/bert
+        textual_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/textual_embeddings/bert

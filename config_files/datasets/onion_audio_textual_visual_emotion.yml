@@ -1,6 +1,7 @@
 modalities: ('audio', 'textual', 'visual', 'emotion')
 loaders: ('AudioAttribute', 'TextualAttribute', 'VisualAttribute', 'EmotionAttribute')
 experiment:
+  gpu: 3
   dataset: onion
   data_config:
     side_information:
