@@ -23,16 +23,12 @@ class RerankingRecommender(ProxyRecommender):
         self._random = np.random
 
         self._params_list = [
-            ("_name", "name", "name", "", None, None),
-            ("_path", "path", "path", "", None, None),
+            ("_input_path", "input_path", "input_path", "", None, None),
             ("_similarity", "similarity", "sim", "cosine", None, None),
             ("_modalitiy", "modalitiy", "modality", "emotion", None, None),
             ("_loader", "loader", "load", "EmotionAttribute", None, None)
         ]
         self.autoset_params()
-
-        if not self._name:
-            self._name = ntpath.basename(self._path).rsplit(".",1)[0]
 
         self._ratings = self._data.train_dict
 
@@ -46,31 +42,31 @@ class RerankingRecommender(ProxyRecommender):
                                  modalitiy=self._modalitiy,
                                  multimodal_feature=multimodal_feature)
 
-        # TODO name
-        '''wandb.init(
-            project=f"{self.name}-reranking",
+        wandb.init(
+            project=f"{self.name}",
             name=self.name,
             config={
                 **{
                     "similarity": self._similarity,
-                    "modalities": self._modalities
+                    "modalitiy": self._modalitiy
                 }
             },
             reinit=True,
-        )'''
+        )
 
     @property
     def name(self):
-        return self._name
+        base_model_name = ntpath.basename(self._input_path).rsplit(".",1)[0]
+        return "Reranker" + f"_{base_model_name}"
 
     def train(self):
         print("Reading recommendations")
-        recs = self.read_recommendations(self._path)
+        recs = self.read_recommendations(self._input_path)
 
         self._recommendations = self._reranking_model.rerank_recommendations(recs)
 
         print("Evaluating recommendations")
-        self.evaluate()
+        self.evaluate(wandb_log=True)
 
     def get_recommendations(self, top_k):
         predictions_top_k_val = {}

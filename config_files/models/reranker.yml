@@ -2,5 +2,5 @@ experiment:
     backend: pytorch
     models:
         external.RerankingRecommender:
-            path: ./results/emma/recs/ItemKNN_nn=70_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
+            input_path: ./results/emma/recs/ItemKNN_nn=100_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
             similarity: [ cosine, euclidean ]
