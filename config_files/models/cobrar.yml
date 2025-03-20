@@ -1,4 +1,5 @@
 experiment:
+  gpu: 2
   backend: pytorch
   models:
     external.CoBraR:

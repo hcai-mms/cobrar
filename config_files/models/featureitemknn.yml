@@ -1,4 +1,5 @@
 experiment:
+  gpu: 1
   models:
     external.FeatureItemKNN:
       neighbors: [ 20, 50, 70, 100 ]

@@ -1,31 +1,32 @@
 experiment:
+  gpu: 3
   backend: pytorch
   models:
     external.SiBraR:
       # to optimize
-      lr: [ 1e-6, 1e-5, 1e-4 ]
-      num_neg: [ 5 ]
+      lr: [ 1e-6 ]
+      num_neg: [ 5, 20 ]
       # Setting to true makes everything very bumpy
       norm_input_feat: [ False ]
-      input_dim: [ 2048 ]
+      input_dim: [ 2048, 1024 ]
       # Setting to true decreases performance
       norm_sbra_input: [ False ]
-      mid_layers: [ [1024, 1024, 512, 512], [512, 512, 256, 256], [512, 512, 256], [512, 256, 128] ]# [512, 512, 256, 256, 128, 128, 64, 64] ]
+      mid_layers: [ [512, 512, 256, 256], [512, 256, 128] ]# [512, 512, 256, 256, 128, 128, 64, 64] ]
       # To optimize
-      emb_dim: [ 128, 64 ]
+      emb_dim: [ 64 ]
       # When to apply batch normalization
       # This is batch_norm_every in SiBraR
       # 0 ... deactivate, 1+ ... every n layers, -1 ... only last layer
       # WIP still not working
 #      b_norm_e: -1
-      w_decay: [  1.e-2, 1.e-3 ]
-      dropout: [ 1.e-1 , 1.e-2 ]
+      w_decay: [  1.e-2 ]
+      dropout: [ 1.e-1 ]
       # use_user_profile i.e., users interactions for embedding users
       u_prof: [ True ] # False, True ]
-      cl_weight: [ 1.e-1 ]
-      cl_temp: [ 1. ]
+      cl_weight: [ 1.e-1, 1.e-2 ]
+      cl_temp: [ 1., 1.e-1 ]
 
       early_stopping:
         verbose: False
-        patience: 10
+        patience: 5
         monitor: nDCG@5
