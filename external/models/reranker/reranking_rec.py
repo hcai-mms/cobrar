@@ -42,8 +42,10 @@ class RerankingRecommender(ProxyRecommender):
                                  modalitiy=self._modalitiy,
                                  multimodal_feature=multimodal_feature)
 
+        self._base_model_name = ntpath.basename(self._input_path).rsplit(".",1)[0].split('_')[0]
+
         wandb.init(
-            project=f"{self.name}",
+            project=f"Reranker_{self._base_model_name}",
             name=self.name,
             config={
                 **{
@@ -56,8 +58,7 @@ class RerankingRecommender(ProxyRecommender):
 
     @property
     def name(self):
-        base_model_name = ntpath.basename(self._input_path).rsplit(".",1)[0]
-        return "Reranker" + f"_{base_model_name}"
+        return f"Reranker_{self._base_model_name}"
 
     def train(self):
         print("Reading recommendations")

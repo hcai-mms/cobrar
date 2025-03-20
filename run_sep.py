@@ -5,7 +5,7 @@ import argparse
 from utils import save_yaml, load_yaml, merge_dicts
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_emotion')
+parser.add_argument('--data', type=str, default='emma_audio_textual_visual_emotion')
 parser.add_argument('--model', type=str, default='reranker')
 args = parser.parse_args()
 

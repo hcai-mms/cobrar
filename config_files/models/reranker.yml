@@ -2,5 +2,5 @@ experiment:
     backend: pytorch
     models:
         external.RerankingRecommender:
-            input_path: ./results/emma/recs/ItemKNN_nn=100_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
+            input_path: ./results/emma/recs/LightGCNM_seed=123_e=200_bs=1024_lr=0$0001_factors=64_l_w=0$01_modalites='audio'-'textual'-'visual'_n_layers=1_normalize=False_aggregation=concat_loads='AudioAttribute'-'TextualAttribute'-'VisualAttribute'_it=52.tsv
             similarity: [ cosine, euclidean ]
