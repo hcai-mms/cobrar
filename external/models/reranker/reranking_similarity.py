@@ -10,11 +10,12 @@ from sklearn.metrics import pairwise_distances
 
 class Similarity(object):
 
-    def __init__(self, data, similarity, modalitiy, multimodal_feature):
+    def __init__(self, data, similarity, k, modalitiy, multimodal_feature):
         self._data = data
         self._ratings = data.train_dict
 
         self._similarity = similarity
+        self._k = k
         self.multimodal_feature = multimodal_feature
         self.modalitiy = modalitiy
 
@@ -28,7 +29,6 @@ class Similarity(object):
         self._public_items = self._data.public_items
 
     def rerank_recommendations(self, recs):
-        reranked_recs = {}
         for u, user_recs in recs.items():
             user_id = self._public_users.get(u)
             user_recs_items = [rec for rec, _ in user_recs]
@@ -41,6 +41,6 @@ class Similarity(object):
             user_item_similarity = pairwise_distances(user_feature.reshape(1, -1), user_recs_feature, metric=self._similarity).flatten()
 
             # rerank and sort according to highest similarity
-            reranked_recs[u] = sorted(list(zip(user_recs_items, user_item_similarity)), key=lambda x: x[1], reverse=True)
+            recs[u][:self._k] = sorted(list(zip(user_recs_items[:self._k], user_item_similarity[:self._k])), key=lambda x: x[1], reverse=True)
 
-        return reranked_recs
+        return recs

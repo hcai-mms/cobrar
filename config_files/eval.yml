@@ -1,5 +1,12 @@
 experiment:
     dataset: emma
+    evaluation:
+        cutoffs: [ 1, 5, 10, 20 ]
+        simple_metrics: [ Recall, Precision, nDCG, MRR, HR, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
+        paired_ttest: False
+        wilcoxon_test: False
     models:
-        ProxyRecommender:
-            path: ./results/emma/recs/FeatureItemKNN_nn=20_sim=cosine_msf=0$15_bin=False_modalites='emotion'_aggregation=concat_loads='EmotionAttribute'.tsv
+        #ProxyRecommender:
+        #    path: ./results/emma/recs/FeatureItemKNN_nn=20_sim=cosine_msf=0$15_bin=False_modalites='emotion'_aggregation=concat_loads='EmotionAttribute'.tsv
+        RecommendationFolder:
+            folder: ./results/emma/recs

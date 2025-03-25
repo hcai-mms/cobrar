@@ -25,6 +25,7 @@ class RerankingRecommender(ProxyRecommender):
         self._params_list = [
             ("_input_path", "input_path", "input_path", "", None, None),
             ("_similarity", "similarity", "sim", "cosine", None, None),
+            ("_k", "k", "k", 10, None, None),
             ("_modalitiy", "modalitiy", "modality", "emotion", None, None),
             ("_loader", "loader", "load", "EmotionAttribute", None, None)
         ]
@@ -39,6 +40,7 @@ class RerankingRecommender(ProxyRecommender):
 
         self._reranking_model = Similarity(data=self._data,
                                  similarity=self._similarity,
+                                 k=self._k,
                                  modalitiy=self._modalitiy,
                                  multimodal_feature=multimodal_feature)
 
@@ -50,7 +52,9 @@ class RerankingRecommender(ProxyRecommender):
             config={
                 **{
                     "similarity": self._similarity,
-                    "modalitiy": self._modalitiy
+                    "k": self._k,
+                    "modalitiy": self._modalitiy,
+                    "path": ntpath.basename(self._input_path)
                 }
             },
             reinit=True,
@@ -58,7 +62,7 @@ class RerankingRecommender(ProxyRecommender):
 
     @property
     def name(self):
-        return f"Reranker_{self._base_model_name}"
+        return f"Reranker_{self._similarity}_{self._k}_{self._modalitiy}_{self._base_model_name}"
 
     def train(self):
         print("Reading recommendations")
