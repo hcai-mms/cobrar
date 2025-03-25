@@ -2,9 +2,6 @@ import ntpath
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import re
-import os
-import glob
 
 from elliot.recommender.base_recommender_model import BaseRecommenderModel
 from elliot.recommender.recommender_utils_mixin import RecMixin
@@ -30,37 +27,9 @@ class ProxyRecommender(RecMixin, BaseRecommenderModel):
         if not self._name:
             self._name = ntpath.basename(self._path).rsplit(".",1)[0]
 
-        self._path = self.find_max_iteration_path(self._path)
-
     @property
     def name(self):
         return self._name
-
-    def find_max_iteration_path(self, base_path):
-        # Create a pattern that matches all versions of the file with different it values
-        # This extracts just the base part before the '_it=' part
-        base_name = re.sub(r'_it=\d+\.tsv$', '', base_path)
-
-        # Create a pattern to match all files with this base name but different it values
-        pattern = f"{base_name[:-4]}_it=*.tsv"
-
-        # Find all matching files
-        matching_files = glob.glob(pattern)
-
-        if not matching_files:
-            return base_path  # Return the original if no matches
-
-        # Extract the iteration number from each file using regex
-        def extract_it_number(filepath):
-            match = re.search(r'_it=(\d+)\.tsv$', filepath)
-            if match:
-                return int(match.group(1))
-            return 0
-
-        # Find the file with the highest iteration number
-        max_it_file = max(matching_files, key=extract_it_number)
-
-        return max_it_file
 
     def train(self):
         print("Reading recommendations")
@@ -121,6 +90,8 @@ class ProxyRecommender(RecMixin, BaseRecommenderModel):
         # recs = {name: list(group[['itemId', 'prediction']].itertuples(index=False, name=None)) for name, group in tqdm(user_groups)}
         for name, group in tqdm(user_groups):
             #df.sort_values(by=['col1'])
+            if isinstance(name, tuple):
+                name = name[0]
             recs[name] = list(group[['itemId', 'prediction']].itertuples(index=False, name=None))#data.loc[group.index][['itemId', 'prediction']].apply(tuple, axis=1).to_list()
             # recs[name] = sorted(data.loc[group.index][['itemId', 'prediction']].apply(tuple, axis=1).to_list(), key=lambda x: x[1], reverse=True)
         return recs
