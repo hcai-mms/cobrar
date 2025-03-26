@@ -111,7 +111,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         layers = collections.OrderedDict()
         if self.dropout > 0.:
-            layers[f'single_branch_dropout'] = nn.Dropout(p=self.dropout)
+            layers[f'single_branch_dropout_input'] = nn.Dropout(p=self.dropout)
 
         total_iterations = len(single_branch_layers_dim[:-1])
         for i, (d1, d2) in enumerate(zip(single_branch_layers_dim[:-1], single_branch_layers_dim[1:])):
@@ -128,6 +128,9 @@ class SiBraRModel(torch.nn.Module, ABC):
             if i < total_iterations - 1:
                 # only add activation functions in intermediate layers
                 layers[f"single_branch_relu_{i}"] = nn.ReLU().to(self.device)
+
+            if self.dropout > 0.:
+                layers[f'single_branch_dropout_{i}'] = nn.Dropout(p=self.dropout)
 
         # if b_norm_e == -1:
         #     layers[f"final_batch_norm"] = nn.BatchNorm1d(num_features=single_branch_layers_dim[-1])
