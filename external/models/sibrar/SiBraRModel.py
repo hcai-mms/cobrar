@@ -26,7 +26,7 @@ class SiBraRModel(torch.nn.Module, ABC):
                  input_dim,
                  mid_layers,
                  emb_dim,
-                 # b_norm_e,
+                 b_norm,
                  w_decay,
                  cl_weight,
                  cl_temp,
@@ -60,7 +60,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         self.input_dim = input_dim
         self.mid_layers = mid_layers
         self.emb_dim = emb_dim
-        # self.b_norm_e = b_norm_e
+        self.b_norm = b_norm
         self.lr = lr
         self.w_decay = w_decay
         self.cl_weight = cl_weight
@@ -121,9 +121,9 @@ class SiBraRModel(torch.nn.Module, ABC):
             # apply batch normalization before activation fn (see http://torch.ch/blog/2016/02/04/resnets.html)
             # +1 to not immediately put normalization after first layer if 'apply_b_norm_e' >= 2
 
-            # if b_norm_e > 0 and (i + 1) % b_norm_e == 0:
-            #     # see https://discuss.pytorch.org/t/problems-using-batchnorm1d/14730/5
-            #     layers[f"batch_norm_{i}"] = nn.BatchNorm2d(num_features=d2)
+            if b_norm:
+                # see https://discuss.pytorch.org/t/problems-using-batchnorm1d/14730/5
+                layers[f"batch_norm_{i}"] = nn.BatchNorm1d(num_features=d2)
 
             if i < total_iterations - 1:
                 # only add activation functions in intermediate layers
