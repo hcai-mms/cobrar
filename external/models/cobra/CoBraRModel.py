@@ -20,6 +20,8 @@ class CoBraRModel(torch.nn.Module, ABC):
                  sp_i_train_ratings,
                  learning_rate=0.01,
                  mu=1.e-6,
+                 dropout=-1.0,
+                 batch_norm=False,
                  random_seed=42,
                  name="CoBraR",
                  **kwargs):
@@ -45,6 +47,8 @@ class CoBraRModel(torch.nn.Module, ABC):
         self.max_ratings = max_ratings
         self._sp_i_train_ratings = sp_i_train_ratings
         self.mu = mu
+        self.dropout = dropout
+        self.batch_norm = batch_norm
         # User and item profiles (rows and cols in the interaction matrix)
         # as pre-trained embeddings
         self.collaborative_branch = collaborative_branch
@@ -91,7 +95,16 @@ class CoBraRModel(torch.nn.Module, ABC):
             torch.nn.init.xavier_uniform_(layer.weight)
             layer.to(self.device)
             layers.append(layer)
-            if layers != len(self.collaborative_branch) - 2:
+            if self.dropout > 0.:
+                layer = nn.Dropout(self.dropout)
+                layer.to(self.device)
+                layers.append(layer)
+            if self.batch_norm:
+                layer = nn.BatchNorm1d(d2)
+                layer.to(self.device)
+                layers.append(layer)
+
+            if len(layers) != len(self.collaborative_branch) - 2:
                 activation = nn.ReLU().to(self.device)
                 layers.append(activation)
 

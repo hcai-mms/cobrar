@@ -50,6 +50,8 @@ class CoBraR(DeepMF):
         DeepMF.__init__(self, data, config, params, *args, **kwargs)
         self._params_list += [
             ("_collaborative_branch", "collaborative_branch", "cb", [1024, 512], list, None),
+            ("_dropout", "dropout", "do", -1., float, None),
+            ("_batch_norm", "batch_norm", "bn", False, bool, None),
         ]
         self.autoset_params()
 
@@ -66,6 +68,8 @@ class CoBraR(DeepMF):
             sp_i_train_ratings=self._data.sp_i_train_ratings,
             learning_rate=self._learning_rate,
             mu=self._mu,
+            dropout=self._dropout,
+            batch_norm=self._batch_norm,
             random_seed=self._seed
         )
         wandb.init(
@@ -81,6 +85,8 @@ class CoBraR(DeepMF):
                     "batch_size": self._batch_size,
                     "neg_ratio": self._neg_ratio,
                     "mu": self._mu,
+                    "dropout": self._dropout,
+                    "batch_norm": self._batch_norm,
                 },
                 **{f"user_layer-{ii}": layer for ii, layer in enumerate(self._user_mlp)},
                 **{f"item_layer-{ii}": layer for ii, layer in enumerate(self._item_mlp)},

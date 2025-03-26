@@ -160,8 +160,8 @@ def init_charger(init):
 
         self.evaluator = Evaluator(self._data, self._params)
         self._params.name = self.name
-
-        build_model_folder(self._config.path_output_rec_weight, self.name)
+        if self._save_weights:
+            build_model_folder(self._config.path_output_rec_weight, self.name)
         self._saving_filepath = os.path.abspath(os.sep.join([self._config.path_output_rec_weight, self.name, f"best-weights-{self.name}"]))
 
     return new_init
