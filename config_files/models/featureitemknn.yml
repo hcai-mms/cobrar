@@ -5,5 +5,5 @@ experiment:
       neighbors: [ 20, 50, 70, 100 ]
       similarity: [ cosine, dot, euclidean ]
       aggregation: [ concat, ensemble ]
-      modal_sim_factor: [0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+      modal_sim_factor: [0.05, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]
       implementation: standard

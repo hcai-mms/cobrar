@@ -169,15 +169,6 @@ class LightGCN(RecMixin, BaseRecommenderModel):
             else:
                 self.logger.info(f'Finished')
 
-            if self._save_recs:
-                self.logger.info(f"Writing recommendations at: {self._config.path_output_rec_result}")
-                if it is not None:
-                    store_recommendation(recs[1], os.path.abspath(
-                        os.sep.join([self._config.path_output_rec_result, f"{self.name}_it={it + 1}.tsv"])))
-                else:
-                    store_recommendation(recs[1], os.path.abspath(
-                        os.sep.join([self._config.path_output_rec_result, f"{self.name}.tsv"])))
-
             if (len(self._results) - 1) == self.get_best_arg():
                 if it is not None:
                     self._params.best_iteration = it + 1
@@ -191,6 +182,11 @@ class LightGCN(RecMixin, BaseRecommenderModel):
                         }, self._saving_filepath)
                     else:
                         self.logger.warning("Saving weights FAILED. No model to save.")
+
+                if self._save_recs:
+                    self.logger.info(f"Writing recommendations at: {self._config.path_output_rec_result}")
+                    store_recommendation(recs[1], os.path.abspath(
+                            os.sep.join([self._config.path_output_rec_result, f"{self.name}.tsv"])))
 
     def restore_weights(self):
         try:

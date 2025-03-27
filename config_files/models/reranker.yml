@@ -1,0 +1,10 @@
+experiment:
+    backend: pytorch
+    evaluation:
+        simple_metrics: [ Recall, Precision, nDCG, MRR, HR, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
+    models:
+        external.RerankingRecommender:
+            #input_path: ./results/emma/recs/LightGCNM_seed=123_e=200_bs=1024_lr=0$001_factors=64_l_w=0$01_modalites='audio'-'textual'-'visual'-'emotion'_n_layers=3_normalize=False_aggregation=mean_loads='AudioAttribute'-'TextualAttribute'-'VisualAttribute'-'EmotionAttribute'_it=17.tsv
+            input_path: ./results/emma/recs/LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=1_normalize=True_it=2.tsv
+            similarity: [ cosine, euclidean ]
+            k: [ 5, 10, 20, 50, 100 ]

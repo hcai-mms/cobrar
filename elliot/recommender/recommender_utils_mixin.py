@@ -26,7 +26,7 @@ class RecMixin(object):
 
             self.evaluate(it, loss/(it + 1))
 
-    def evaluate(self, it=None, loss=0):
+    def evaluate(self, it=None, loss=0, wandb_log=False):
         if (it is None) or (not (it + 1) % self._validation_rate):
             recs = self.get_recommendations(self.evaluator.get_needed_recommendations())
             result_dict = self.evaluator.eval(recs)
@@ -35,7 +35,7 @@ class RecMixin(object):
 
             self._results.append(result_dict)
 
-            if it is None:
+            if it is None and wandb_log:
                 wandb.log(
                     {
                         # For now, we only log one metric

@@ -33,5 +33,6 @@ for _backend in sys.modules["external"].backend:
         from .deepmf.DeepMF import DeepMF
         from .cobra.CoBraR import CoBraR
         from .cobrarbpr.CoBraRBPR import CoBraRBPR
+        from .reranker.reranking_rec import RerankingRecommender
 
     from .feature_item_knn.feature_item_knn import FeatureItemKNN

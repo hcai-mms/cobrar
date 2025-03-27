@@ -90,6 +90,8 @@ class ProxyRecommender(RecMixin, BaseRecommenderModel):
         # recs = {name: list(group[['itemId', 'prediction']].itertuples(index=False, name=None)) for name, group in tqdm(user_groups)}
         for name, group in tqdm(user_groups):
             #df.sort_values(by=['col1'])
+            if isinstance(name, tuple):
+                name = name[0]
             recs[name] = list(group[['itemId', 'prediction']].itertuples(index=False, name=None))#data.loc[group.index][['itemId', 'prediction']].apply(tuple, axis=1).to_list()
             # recs[name] = sorted(data.loc[group.index][['itemId', 'prediction']].apply(tuple, axis=1).to_list(), key=lambda x: x[1], reverse=True)
         return recs
