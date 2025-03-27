@@ -8,6 +8,15 @@ import torch.nn.functional as F
 import collections
 
 
+class MyBatchNorm(nn.Module):
+    def __init__(self, num_features):
+        super(MyBatchNorm, self).__init__()
+        self.num_features = num_features
+        self.batch_norm = nn.BatchNorm1d(num_features)
+
+    def forward(self, x):
+        return self.batch_norm(x.flatten(0, -2)).reshape(x.shape)
+
 class L2NormalizationLayer(nn.Module):
     def __init__(self, dim=1, eps=1e-12):
         super(L2NormalizationLayer, self).__init__()
@@ -123,7 +132,8 @@ class SiBraRModel(torch.nn.Module, ABC):
 
             if b_norm:
                 # see https://discuss.pytorch.org/t/problems-using-batchnorm1d/14730/5
-                layers[f"batch_norm_{i}"] = nn.BatchNorm1d(num_features=d2)
+                # batchnorm1d(x.flatten(0, -2)).reshape(x.shape)
+                layers[f"batch_norm_{i}"] = MyBatchNorm(num_features=d2).to(self.device)
 
             if i < total_iterations - 1:
                 # only add activation functions in intermediate layers

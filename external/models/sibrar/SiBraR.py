@@ -38,8 +38,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             ("_dropout", "dropout", "dropout", -1., float, None),
             ("_norm_sbra_input", "norm_sbra_input", "norm_sbra_input", False, bool, None),
             ("_cl_temp", "cl_temp", "cl_temp", 0.01, float, None),
-            ("_modalities", "modalities", "modalities", "('visual','textual')", lambda x: list(make_tuple(x)),
-             lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
+            ("_modalities", "modalities", "modalities", "('visual','textual')", lambda x: list(make_tuple(x)), lambda x: self._batch_remove(str(x), " []").replace(",", "-")),
             ("_loaders", "loaders", "loads", "('VisualAttribute','TextualAttribute')", lambda x: list(make_tuple(x)),
              lambda x: self._batch_remove(str(x), " []").replace(",", "-"))
         ]
