@@ -8,6 +8,7 @@ if [ $# -ne 1 ]; then
 fi
 
 model_list=('featureitemknn' 'lightgcnm')
+#model_list=('lightgcnm')
 
 emma_dataset_list=('emma_emotion' 'emma_audio_textual_visual' 'emma_audio_textual_visual_emotion')
 
