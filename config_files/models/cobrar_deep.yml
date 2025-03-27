@@ -19,6 +19,8 @@ experiment:
       #
       collaborative_branch: [ [512, 512, 256, 256] ]
       #
+      dropout: [ 0.1, 0.5, 0.8 ]
+      batch_norm: [True, False]
       neg_ratio: [ 5 ] # 1 , 10, 20, 100 ]
       similarity: cosine
 
