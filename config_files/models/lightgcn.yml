@@ -2,6 +2,9 @@ experiment:
   backend: pytorch
   models:
     external.LightGCN:
+      meta:
+        save_weights: False
+        save_recs: False
       lr: [ 0.0005, 0.001, 0.005 ]
       n_layers: [1, 2, 3]
       batch_size: 128

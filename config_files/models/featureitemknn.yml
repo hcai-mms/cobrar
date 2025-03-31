@@ -2,6 +2,9 @@ experiment:
   gpu: 1
   models:
     external.FeatureItemKNN:
+      meta:
+        save_weights: False
+        save_recs: False
       neighbors: [ 20, 50, 70, 100 ]
       similarity: [ cosine, dot, euclidean ]
       aggregation: [ concat, ensemble ]

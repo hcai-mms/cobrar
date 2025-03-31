@@ -3,6 +3,9 @@ experiment:
   backend: pytorch
   models:
     external.SiBraR:
+      meta:
+        save_weights: False
+        save_recs: False
       # to optimize
       lr: [ 1.e-10 ]
       batch_size: [ 64 ]

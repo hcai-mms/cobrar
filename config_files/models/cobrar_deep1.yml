@@ -3,11 +3,14 @@ experiment:
   backend: pytorch
   models:
     external.CoBraR:
+      meta:
+        save_weights: False
+        save_recs: False
       #
       lr: [ 1.e-6, 1.e-7 ] # Way better than 1.e-3 and 1.e-2
       # not really relevant
       batch_size: [ 64 ]
-      # relevant for cobrarbpr
+      # not really relevant
       reg: [ 1.e-1, 1.e-2 ]
       # already 128 gives OOM on rk4 with batch size 256 and no intermediate layers
       # 64 still to try
@@ -19,6 +22,8 @@ experiment:
       #
       collaborative_branch: [ [512, 512, 256, 256] ]
       #
+      dropout: [ 0.1, 0.5, 0.8 ]
+      batch_norm: [True, False]
       neg_ratio: [ 5 ] # 1 , 10, 20, 100 ]
       similarity: cosine
 

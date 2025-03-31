@@ -1,6 +1,12 @@
 experiment:
   models:
     Random:
+      meta:
+        save_weights: False
+        save_recs: False
       random_seed: 123
     MostPop:
+      meta:
+        save_weights: False
+        save_recs: False
       random_seed: 123
