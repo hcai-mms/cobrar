@@ -128,8 +128,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         total_iterations = len(single_branch_layers_dim[:-1])
         for i, (d1, d2) in enumerate(zip(single_branch_layers_dim[:-1], single_branch_layers_dim[1:])):
-            layer = nn.Linear(in_features=d1, out_features=d2).to(self.device)
-            layers[f"single_branch_layer_{i}"] = layer
+            layers[f"single_branch_layer_{i}"] = nn.Linear(in_features=d1, out_features=d2).to(self.device)
 
             # apply batch normalization before activation fn (see http://torch.ch/blog/2016/02/04/resnets.html)
             # +1 to not immediately put normalization after first layer if 'apply_b_norm_e' >= 2
@@ -181,16 +180,13 @@ class SiBraRModel(torch.nn.Module, ABC):
         features = torch.zeros((*items.squeeze().shape, len(self.modalities) + 1, self.emb_dim)).to(self.device)
         for m_id, m in enumerate(self.modalities):
             feature = self.item_embedding_modules[m_id](items)
-            # print(feature.device) cuda
+            # Move to the layers?
             if self.norm_sbra_input:
                 feature = nn.functional.normalize(feature, p=2, dim=-1)
-            # print(feature.device) # cuda
-            # ToDo add batch normalization
             feature = self.single_branch(feature)
             features[..., m_id, :] = feature.squeeze()
 
-        # Interactions (same ToDo as above)
-        ## batch normalization
+        # Interactions
         m_id = len(self.modalities)
         feature = self.item_embedding_modules[m_id](items)
         if self.norm_sbra_input:
@@ -212,7 +208,7 @@ class SiBraRModel(torch.nn.Module, ABC):
         # i_repr = torch.mean(i_repr, dim=-2)
         return u_repr, i_repr
 
-    def loss_contrastive(self, contrastive_modality_reps):
+    def loss_contrastive_all_items(self, contrastive_modality_reps):
         # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_modality_reps = contrastive_modality_reps.reshape(-1, contrastive_modality_reps.size(-2), contrastive_modality_reps.size(-1))
         logits = contrastive_modality_reps[:, 0, :] @ contrastive_modality_reps[:, 1, :].transpose(-2, -1) / self.cl_temp
@@ -226,6 +222,27 @@ class SiBraRModel(torch.nn.Module, ABC):
         logits_p_to_c = logits.transpose(-2, -1).reshape(-1, logits.shape[-1])
 
         # labels = labels.reshape(-1)
+        x_y_loss = F.cross_entropy(logits_c_to_p, labels)
+        y_x_loss = F.cross_entropy(logits_p_to_c, labels)
+
+        contrastive_loss = x_y_loss + y_x_loss
+        return contrastive_loss
+
+    def loss_contrastive(self, contrastive_modality_reps):
+        # shape is [num_users, 1 + n_negs, 2, embedding_dim]
+        # print(contrastive_modality_reps.shape)
+        first_emb, second_emb = contrastive_modality_reps[..., 0, :], contrastive_modality_reps[..., 1, :]
+        logits = first_emb @ second_emb.transpose(-2, -1) / self.cl_temp
+
+        # Positive keys are the entries on the diagonal, therefore these are the correct labels:
+        # [batch_size, 0, 1, ..., batch_size - 1]
+        labels = torch.arange(logits.shape[-1], device=first_emb.device).repeat(1, *logits.shape[:-2], 1)
+
+        # Logits change depending on which modality we are "retrieving"
+        logits_c_to_p = logits.reshape(-1, logits.shape[-1])
+        logits_p_to_c = logits.transpose(-2, -1).reshape(-1, logits.shape[-1])
+
+        labels = labels.reshape(-1)
         x_y_loss = F.cross_entropy(logits_c_to_p, labels)
         y_x_loss = F.cross_entropy(logits_p_to_c, labels)
 
