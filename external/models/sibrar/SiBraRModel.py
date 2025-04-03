@@ -113,7 +113,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         if self.norm_input_feat:
             layers.append((f'profile_norm_layer', L2NormalizationLayer(dim=1)))
         layers.append((f'profile_projector', torch.nn.Linear(self.num_users, self.input_dim).to(self.device)))
-        layers.append((f'profile_projector_activation', nn.ReLU()))
+        # original sibrar does not use activation after projection
+        # layers.append((f'profile_projector_activation', nn.ReLU()))
 
         layers = collections.OrderedDict(layers)
         self.item_embedding_modules[len(self.modalities)] = torch.nn.Sequential(layers)
