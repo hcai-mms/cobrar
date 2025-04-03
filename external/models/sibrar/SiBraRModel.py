@@ -250,7 +250,8 @@ class SiBraRModel(torch.nn.Module, ABC):
         return contrastive_loss
 
     def predict(self, gu, gi, **kwargs):
-        return torch.sigmoid(torch.matmul(gu.to(self.device), torch.transpose(gi.to(self.device), 0, 1)))
+        # return torch.sigmoid(torch.matmul(gu.to(self.device), torch.transpose(gi.to(self.device), 0, 1)))
+        return torch.matmul(gu.to(self.device), torch.transpose(gi.to(self.device), 0, 1))
 
     def train_step(self, batch):
         user, pos, neg = batch
