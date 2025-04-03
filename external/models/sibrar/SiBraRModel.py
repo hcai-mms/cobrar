@@ -271,7 +271,14 @@ class SiBraRModel(torch.nn.Module, ABC):
         xu_pos = torch.sum(user_repr * pos_item_repr, 1)
         xu_neg = torch.sum(user_repr * neg_item_repr, 1)
 
-        loss = -torch.mean(torch.nn.functional.logsigmoid(xu_pos - xu_neg))
+        diff_logits = xu_pos - xu_neg
+
+        pos_labels = torch.ones(xu_pos.shape[0], device=xu_pos.device)
+        labels = torch.repeat_interleave(pos_labels, xu_neg.shape[1])
+
+        loss = nn.BCEWithLogitsLoss(reduction='mean')(diff_logits.flatten(), labels.flatten())
+
+        # loss = -torch.mean(torch.nn.functional.logsigmoid(xu_pos - xu_neg))
         contrastive_modality_reps = torch.cat((pos_item_repres[:, None, :, :], neg_item_repres), 1) # shape is [num_users, 1 + n_negs, 2, embedding_dim]
         contrastive_loss = self.loss_contrastive(contrastive_modality_reps)
         loss += self.cl_weight * contrastive_loss
