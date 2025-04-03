@@ -123,6 +123,7 @@ class DeepMF(RecMixin, BaseRecommenderModel):
         for it in self.iterate(self._epochs):
             loss = 0
             steps = 0
+            self._model.train()
             with tqdm(total=int(self._transactions_per_epoch // self._batch_size), disable=not self._verbose) as t:
                 for batch in self._sampler.step(self._transactions_per_epoch, self._batch_size):
                     steps += 1
