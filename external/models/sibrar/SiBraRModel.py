@@ -169,7 +169,7 @@ class SiBraRModel(torch.nn.Module, ABC):
 
         # AdamW is what was used for SiBraR
         # with weight decay instead of l2 reg
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=self.w_decay)
+        self.optimizer = torch.optim.AdamW(self.parameters(), lr=self.lr, weight_decay=self.w_decay)
 
 
     def get_user_representations(self, users):
