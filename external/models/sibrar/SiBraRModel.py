@@ -94,11 +94,14 @@ class SiBraRModel(torch.nn.Module, ABC):
             layers = [(f'{m}_as_embedding', torch.nn.Embedding.from_pretrained(
                         torch.tensor(self.item_multimodal_features[m_id], dtype=torch.float32, device=self.device)
                     ))]
+            # Original SiBraR uses L1 regularization and this is where weight decay is used
+            #     layers.append((f'{m}_norm_layer', L1(dim=1)))
             if self.norm_input_feat:
                 layers.append((f'{m}_norm_layer', L2NormalizationLayer(dim=1)))
 
             layers.append((f'{m}_projector', torch.nn.Linear(self.item_multimodal_features[m_id].shape[1], self.input_dim).to(self.device)))
-            layers.append((f'{m}_projector_activation', nn.ReLU()))
+            # original sibrar does not use activation after projection
+            # layers.append((f'{m}_projector_activation', nn.ReLU()))
             layers = collections.OrderedDict(layers)
 
             self.item_embedding_modules[m_id] = torch.nn.Sequential(layers)
