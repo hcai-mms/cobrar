@@ -16,10 +16,6 @@ import math
 
 import wandb
 
-# sp_i_train_ratings = self._data.sp_i_train_ratings,
-# random_seed = self._seed,
-# item_multimodal_features = all_multimodal_features,  # actual tensors
-
 class SiBraR(RecMixin, BaseRecommenderModel):
     @init_charger
     def __init__(self, data, config, params, *args, **kwargs):
@@ -50,7 +46,6 @@ class SiBraR(RecMixin, BaseRecommenderModel):
         # def __init__(self, indexed_ratings, transactions, batch_size, all_items, seed=42):
 
         self._sampler = Sampler(self._data.i_train_dict, self._num_neg, self._seed)
-
         for m_id, m in enumerate(self._modalities):
             self.__setattr__(f'''_side_{m}''',
                              self._data.side_information.__getattribute__(f'''{self._loaders[m_id]}'''))
@@ -117,6 +112,7 @@ class SiBraR(RecMixin, BaseRecommenderModel):
         for it in self.iterate(self._epochs):
             loss = 0
             steps = 0
+            self._model.train()
             n_batch = int(self._data.transactions / self._batch_size) if self._data.transactions % self._batch_size == 0 else int(self._data.transactions / self._batch_size) + 1
             self._data.edge_index = self._data.edge_index.sample(frac=1, replace=False).reset_index(drop=True)
             # edge_index = np.array([self._data.edge_index['userId'].tolist(), self._data.edge_index['itemId'].tolist()])
@@ -137,29 +133,29 @@ class SiBraR(RecMixin, BaseRecommenderModel):
             self.evaluate(it, loss / (it + 1))
 
     def get_recommendations(self, k: int = 100):
-        predictions_top_k_test = {}
-        predictions_top_k_val = {}
-        item_repr = self._model.get_item_representations(torch.arange(self._num_items).to(self._model.device))
-        # print(item_repr.shape)
+        self._model.eval()
+        with torch.no_grad():
+            predictions_top_k_test = {}
+            predictions_top_k_val = {}
+            item_repr = self._model.get_item_representations(torch.arange(self._num_items).to(self._model.device))
 
-        item_repr = torch.mean(item_repr, dim=-2)
-        for index, offset in enumerate(range(0, self._num_users, self._batch_size)):
-            offset_stop = min(offset + self._batch_size, self._num_users)
-            user_indices = torch.arange(index * self._batch_size, offset_stop).to(self._model.device)
-
-            user_repr = self._model.get_user_representations(user_indices)
-            # print(user_repr)
-
-            predictions = self._model.predict(user_repr, item_repr)
-            recs_val, recs_test = self.process_protocol(k, predictions, offset, offset_stop)
-            predictions_top_k_val.update(recs_val)
-            predictions_top_k_test.update(recs_test)
+            item_repr = torch.mean(item_repr, dim=-2)
+            for index, offset in enumerate(range(0, self._num_users, self._batch_size)):
+                offset_stop = min(offset + self._batch_size, self._num_users)
+                user_indices = torch.arange(index * self._batch_size, offset_stop).to(self._model.device)
+                user_repr = self._model.get_user_representations(user_indices)
+                predictions = self._model.predict(user_repr, item_repr)
+                recs_val, recs_test = self.process_protocol(k, predictions, offset, offset_stop)
+                predictions_top_k_val.update(recs_val)
+                predictions_top_k_test.update(recs_test)
         return predictions_top_k_val, predictions_top_k_test
 
     def get_single_recommendation(self, mask, k, predictions, offset, offset_stop):
-        v, i = self._model.get_top_k(predictions, mask[offset: offset_stop], k=k)
-        items_ratings_pair = [list(zip(map(self._data.private_items.get, u_list[0]), u_list[1]))
-                              for u_list in list(zip(i.detach().cpu().numpy(), v.detach().cpu().numpy()))]
+        self._model.eval()
+        with torch.no_grad():
+            v, i = self._model.get_top_k(predictions, mask[offset: offset_stop], k=k)
+            items_ratings_pair = [list(zip(map(self._data.private_items.get, u_list[0]), u_list[1]))
+                                  for u_list in list(zip(i.detach().cpu().numpy(), v.detach().cpu().numpy()))]
         return dict(zip(map(self._data.private_users.get, range(offset, offset_stop)), items_ratings_pair))
 
     def evaluate(self, it=None, loss=0):
