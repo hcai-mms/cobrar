@@ -4,10 +4,10 @@ experiment:
         simple_metrics: [ Recall, Precision, nDCG, MRR, HR, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
     models:
         external.RerankingRecommender:
-            #input_path: ./results/emma/recs/ItemKNN_nn=50_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
-            #input_path: ./results/emma/recs/LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=3_normalize=True.tsv
-            input_path: ./results/onion/recs/ItemKNN_nn=20_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
+            input_path: ./results/emma/recs/ItemKNN_nn=70_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
+            #input_path: ./results/emma/recs/LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=2_normalize=True.tsv
+            #input_path: ./results/onion/recs/ItemKNN_nn=20_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
             #input_path: ./results/onion/recs/LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=3_normalize=True.tsv
             similarity: [ cosine, euclidean ]
             #similarity: cosine
-            k: [ 5, 10, 20, 50, 100 ]
+            k: [ 2, 5, 10, 20, 50, 100 ]

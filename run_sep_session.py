@@ -5,16 +5,16 @@ import argparse
 from utils import save_yaml, load_yaml, merge_dicts
 
 parser = argparse.ArgumentParser(description="Run training and evaluation.")
-parser.add_argument('--data', type=str, default='emma_emotion')
-parser.add_argument('--model', type=str, default='reranker')
+parser.add_argument('--data', type=str, default='session_emma')
+parser.add_argument('--model', type=str, default='itemknn')
 args = parser.parse_args()
 
 print(f"Running experiment with data config: {args.data} and model config: {args.model}")
 
-dataset_defaults_config = load_yaml("config_files/datasets/dataset_defaults.yml")
+dataset_defaults_config = load_yaml("config_files/datasets/session/dataset_session_defaults.yml")
 model_defaults_config = load_yaml("config_files/models/model_defaults.yml")
 
-dataset_config = load_yaml(f"config_files/datasets/{args.data}.yml")
+dataset_config = load_yaml(f"config_files/datasets/session/{args.data}.yml")
 model_config = load_yaml(f"config_files/models/{args.model}.yml")
 
 config = merge_dicts(dataset_defaults_config, dataset_config, model_config)

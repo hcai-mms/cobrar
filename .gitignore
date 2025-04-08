@@ -6,6 +6,8 @@ slurm-*
 .vscode
 results/emma
 results/onion
+results/session_emma
+results/session_onion
 results_old/
 data
 data/
