@@ -1,6 +1,5 @@
 experiment:
-    #dataset: emma
-    dataset: onion
+    dataset: None
     evaluation:
         cutoffs: [ 1, 5, 10, 20 ]
         simple_metrics: [ Recall, Precision, nDCG, MRR, HR, EFD, EPC, ARP, PopREO, PopRSP, ItemCoverage, UserCoverage ]
@@ -8,6 +7,7 @@ experiment:
         wilcoxon_test: False
     models:
         ProxyRecommender:
+            path: None
             #path: ./results/emma/recs/ItemKNN_nn=70_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv
 
             #path: ./results/emma/recs/FeatureItemKNN_nn=70_sim=cosine_msf=0$05_bin=False_modalites='emotion'_aggregation=concat_loads='EmotionAttribute'.tsv
@@ -29,7 +29,7 @@ experiment:
 
             #path: ./results/onion/recs/LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=3_normalize=True.tsv
             #path: ./results/onion/recs/LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='audio'-'textual'-'visual'_n_layers=2_normalize=True_aggregation=mean_loads='AudioAttribute'-'TextualAttribute'-'VisualAttribute'.tsv
-            path: ./results/onion/recs/LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='audio'-'textual'-'visual'-'emotion'_n_layers=2_normalize=True_aggregation=mean_loads='AudioAttribute'-'TextualAttribute'-'VisualAttribute'-'EmotionAttribute'.tsv
+            #path: ./results/onion/recs/LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='audio'-'textual'-'visual'-'emotion'_n_layers=2_normalize=True_aggregation=mean_loads='AudioAttribute'-'TextualAttribute'-'VisualAttribute'-'EmotionAttribute'.tsv
             #path: ./results/onion/recs/LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='emotion'_n_layers=3_normalize=True_aggregation=sum_loads='EmotionAttribute'.tsv
 
         #RecommendationFolder:
