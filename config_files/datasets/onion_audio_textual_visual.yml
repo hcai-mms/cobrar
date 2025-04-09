@@ -4,6 +4,7 @@ experiment:
   gpu: 0
   dataset: onion
   data_config:
+    dataset_path: /opt/datasets/Music4All/music4all/onion_elliot/{0}/interactions.tsv
     side_information:
       - dataloader: AudioAttribute
         audio_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/audio_embeddings/maest
