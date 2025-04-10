@@ -1,0 +1,19 @@
+experiment:
+  backend: pytorch
+  data_config:
+    strategy: fixed
+    train_path: /opt/datasets/amazon_elliot/{0}/train.tsv
+    validation_path: /opt/datasets/amazon_elliot/{0}/val.tsv
+    test_path: /opt/datasets/amazon_elliot/{0}/test.tsv
+    side_information:
+      - dataloader: VisualAttribute
+        visual_features: /opt/datasets/amazon_elliot/{0}/visual_embeddings/torch/MMFashion/avgpool
+      - dataloader: TextualAttribute
+        textual_features: /opt/datasets/amazon_elliot/{0}/textual_embeddings/sentence_transformers/sentence-transformers/all-mpnet-base-v2/1
+  dataset: baby
+  top_k: 50
+  evaluation:
+    cutoffs: [ 5, 10, 20, 50 ]
+    simple_metrics: [ Recall, Precision, nDCG ]
+  external_models_path: ../external/models/__init__.py
+

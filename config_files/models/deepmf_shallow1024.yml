@@ -1,6 +1,6 @@
 experiment:
   backend: pytorch
-  gpu: 0
+  gpu: 1
   models:
     external.DeepMF:
       meta:

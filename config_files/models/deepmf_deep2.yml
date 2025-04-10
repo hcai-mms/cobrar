@@ -15,9 +15,9 @@ experiment:
       embedding_dim: [ 64, 128 ] #
       # should be the same for user and item, selected in [ [ 2048 ], [ 1024 ], [ 512 ], [ 256 ]]
       # already tried: 256, 512
-      user_mlp: [ [2048] ]
+      user_mlp: [ [512, 512, 256, 256] ]
       #
-      item_mlp: [ [2048] ]
+      item_mlp: [ [512, 512, 256, 256] ]
       neg_ratio: [ 5 ] # 1 , 10, 20, 100 ]
       similarity: cosine
 
