@@ -2,6 +2,7 @@ import ntpath
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import os
 
 from elliot.recommender import ProxyRecommender
 from elliot.recommender.base_recommender_model import init_charger
@@ -47,7 +48,7 @@ class RerankingRecommender(ProxyRecommender):
         self._base_model_name = ntpath.basename(self._input_path).rsplit(".",1)[0].split('_')[0]
 
         wandb.init(
-            project=f"Reranker_{self._base_model_name}",
+            project=f"Reranker{self._base_model_name}-{os.path.basename(os.path.dirname(config.data_config.dataset_path))}",
             name=self.name,
             config={
                 **{
@@ -62,7 +63,7 @@ class RerankingRecommender(ProxyRecommender):
 
     @property
     def name(self):
-        return f"Reranker_{self._similarity}_{self._k}_{self._modalitiy}_{self._base_model_name}"
+        return f"Reranker{self._base_model_name}_{self._similarity}_{self._k}_{self._modalitiy}"
 
     def train(self):
         print("Reading recommendations")

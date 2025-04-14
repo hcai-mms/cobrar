@@ -7,6 +7,8 @@ slurm-*
 results/emma
 results/onion
 results/onion_umap
+results/session_emma
+results/session_onion
 results_old/
 data
 data/
