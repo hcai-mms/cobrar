@@ -1,0 +1,33 @@
+experiment:
+  gpu: 0
+  backend: pytorch
+  models:
+    external.CoBraR:
+      meta:
+        save_weights: False
+        save_recs: True
+      #
+      lr: [ 0.000001 ] # Way better than 1.e-3 and 1.e-2
+      # not really relevant
+      batch_size: [ 256 ]
+      dropout: [ 0.1 ]
+      batch_norm: [ False ]
+      # not really relevant
+      reg: [ 0.001 ]
+      # already 128 gives OOM on rk4 with batch size 256 and no intermediate layers
+      # 64 still to try
+      embedding_dim: [ 128 ] # [ 256, 128, 64 ]: results were all over the place
+      #
+      user_mlp: [ [] ]
+      #
+      item_mlp: [ [] ] # [ [ 1024, 512 ], [] ] # [ [1024, 512, 256], [1024, 512], [512, 256] ]
+      #
+      collaborative_branch: [ [ 2048 ] ] # [ [1024, 512, 256], [1024, 512], [512, 256] ]
+      #
+      neg_ratio: [ 5 ] # 1 , 10, 20, 100 ]
+      similarity: cosine
+
+      early_stopping:
+        verbose: False
+        patience: 10
+        monitor: nDCG@5

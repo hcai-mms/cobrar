@@ -1,0 +1,14 @@
+experiment:
+  gpu: 0
+  backend: pytorch
+  models:
+    external.BPRMF:
+      meta:
+        save_weights: True
+        save_recs: True
+      lr: [ 1.e-4 ]
+      batch_size: [ 256 ]
+      factors: [ 128 ]
+      l_w: [  1.e-2 ]
+      # I experience that 200 is too few on onion
+      epochs: 500
