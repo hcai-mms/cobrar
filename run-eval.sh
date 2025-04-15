@@ -33,17 +33,22 @@ session_emma_model_list=(
   'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''emotion'\''_n_layers=2_normalize=True_aggregation=concat_loads='\''EmotionAttribute'\''.tsv'
   'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''_n_layers=2_normalize=True_aggregation=concat_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''.tsv'
   'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''-'\''emotion'\''_n_layers=2_normalize=True_aggregation=concat_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''-'\''EmotionAttribute'\''.tsv'
-  'FeatureItemKNN_nn=100_sim=cosine_msf=0$05_bin=False_modalites='\''emotion'\''_aggregation=ensemble_loads='\''EmotionAttribute'\''.tsv'
   'LightGCN_seed=123_e=200_bs=128_lr=0$0005_factors=64_l_w=1e-05_n_layers=3_normalize=True.tsv'
+  'FeatureItemKNN_nn=100_sim=cosine_msf=0$01_bin=False_modalites='\''emotion'\''_aggregation=ensemble_loads='\''EmotionAttribute'\''.tsv'
   'FeatureItemKNN_nn=100_sim=cosine_msf=0$05_bin=False_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''-'\''emotion'\''_aggregation=concat_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''-'\''EmotionAttribute'\''.tsv'
   'ItemKNN_nn=100_sim=cosine_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv'
   'FeatureItemKNN_nn=70_sim=cosine_msf=0$05_bin=False_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''_aggregation=ensemble_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''.tsv'
 )
 
 session_onion_model_list=(
-  'LightGCN_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_n_layers=2_normalize=True.tsv'
   'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''_n_layers=3_normalize=True_aggregation=mean_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''.tsv'
+  'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''emotion'\''_n_layers=3_normalize=True_aggregation=sum_loads='\''EmotionAttribute'\''.tsv'
+  'LightGCN_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_n_layers=2_normalize=True.tsv'
+  'LightGCNM_seed=123_e=200_bs=128_lr=0$001_factors=64_l_w=1e-05_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''-'\''emotion'\''_n_layers=3_normalize=True_aggregation=sum_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''-'\''EmotionAttribute'\''.tsv'
+  'FeatureItemKNN_nn=20_sim=dot_msf=0$3_bin=False_modalites='\''emotion'\''_aggregation=concat_loads='\''EmotionAttribute'\''.tsv'
   'ItemKNN_nn=20_sim=dot_imp=standard_bin=False_shrink=0_norm=True_asymalpha=_tvalpha=_tvbeta=_rweights=.tsv'
+  'FeatureItemKNN_nn=70_sim=cosine_msf=0$2_bin=False_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''-'\''emotion'\''_aggregation=concat_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''-'\''EmotionAttribute'\''.tsv'
+  'FeatureItemKNN_nn=20_sim=cosine_msf=0$3_bin=False_modalites='\''audio'\''-'\''textual'\''-'\''visual'\''_aggregation=ensemble_loads='\''AudioAttribute'\''-'\''TextualAttribute'\''-'\''VisualAttribute'\''.tsv'
 )
 
 dataset=$1
@@ -68,6 +73,6 @@ done
 for model in "${model_list[@]}"; do
   echo "model path: $model"
   echo "dataset: $dataset"
-  sbatch --job-name=emo-rec --mail-user=andreas.peintner@uibk.ac.at --time=300:00:00 --mem=128G --gres=gpu:1 ~/jobs/single-node-gpu.job "conda run -n elliot python run_eval.py --dataset $dataset --path $model"
+  sbatch --job-name=emo-rec --mail-user=andreas.peintner@uibk.ac.at --time=300:00:00 --mem=64G --gres=gpu:1 ~/jobs/single-node-gpu.job "conda run -n elliot python run_eval.py --dataset $dataset --path $model"
   sleep 0.5
 done

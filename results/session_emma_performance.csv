@@ -1,0 +1,9 @@
+model,modality,Recall@5,Precision@5,nDCG@5,MRR@5,HR@5,EFD@5,EPC@5,ARP@5,PopREO@5,PopRSP@5,ItemCoverage@5,UserCoverage@5
+LightGCNM,emotion,0.1947,0.0638,0.1635,0.1928,0.2946,0.4277,0.0689,1180.408,0.4595,0.9007,133.0,14686.0
+LightGCNM,audio'-'textual'-'visual,0.2008,0.066,0.1676,0.1982,0.3048,,,,,,,
+LightGCNM,audio'-'textual'-'visual'-'emotion,0.2,0.0661,0.1682,0.1997,0.306,0.4458,0.0715,1161.0374,0.4343,0.8899,147.0,14686.0
+LightGCN,,0.2044,0.0675,0.1701,0.201,0.3106,0.4497,0.0722,1262.2829,0.4891,0.9142,161.0,14686.0
+FeatureItemKNN,emotion,0.2065,0.0679,0.1728,0.2049,0.3106,,,,,,,
+FeatureItemKNN,audio'-'textual'-'visual'-'emotion,0.2064,0.0678,0.1733,0.2059,0.3108,,,,,,,
+FeatureItemKNN,audio'-'textual'-'visual,0.2073,0.068,0.1734,0.2056,0.3117,,,,,,,
+ItemKNN,,0.2076,0.0681,0.1734,0.2054,0.3117,0.4372,0.0722,1776.6663,0.6617,0.9618,202.0,14686.0
