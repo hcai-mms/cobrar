@@ -1,4 +1,0 @@
-experiment:
-  dataset: onion
-  data_config:
-    dataset_path: /opt/datasets/Music4All/music4all/onion_elliot/{0}/interactions.tsv

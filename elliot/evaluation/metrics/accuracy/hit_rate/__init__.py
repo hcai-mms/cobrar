@@ -1,1 +1,0 @@
-from .hit_rate import HR

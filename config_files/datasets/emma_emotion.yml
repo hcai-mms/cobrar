@@ -1,9 +1,0 @@
-modalities: ('emotion', )
-loaders: ('EmotionAttribute', )
-experiment:
-  gpu: 0
-  dataset: emma
-  data_config:
-    side_information:
-      - dataloader: EmotionAttribute
-        emotion_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/emotion_embeddings/gems

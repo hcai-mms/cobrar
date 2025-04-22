@@ -1,9 +1,0 @@
-hyperopt==0.2.7
-numpy==1.19.5
-tensorflow==2.7.4 # https://www.tensorflow.org/install/pip#windows-native
-tqdm
-scipy
-pandas
-Pillow
-PyYAML
-scikit_learn

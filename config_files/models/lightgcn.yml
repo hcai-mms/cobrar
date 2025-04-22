@@ -1,9 +1,0 @@
-experiment:
-  backend: pytorch
-  models:
-    external.LightGCN:
-      lr: [ 0.001, 0.005 ]
-      n_layers: [1, 2, 3]
-      batch_size: 128
-      normalize: True
-      l_w: 1e-5

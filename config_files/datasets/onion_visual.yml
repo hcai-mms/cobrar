@@ -1,9 +1,0 @@
-modalities: ('visual', )
-loaders: ('VisualAttribute', )
-experiment:
-  gpu: 1
-  dataset: onion
-  data_config:
-    side_information:
-      - dataloader: VisualAttribute
-        visual_features: /opt/datasets/Music4All/music4all/onion_elliot/{0}/visual_embeddings/resnet
