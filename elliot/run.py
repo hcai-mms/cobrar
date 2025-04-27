@@ -178,7 +178,6 @@ def run_experiment(config_path: str = '', dataset_name: str = '', model_name: st
                                                   output=base.base_namespace.path_output_rec_performance)
 
     logger.info("End experiment")
-    # TODO: check before to push only this feature!
     # logger.info("Start Post-Hoc scripts")
 
     # spec = importlib.util.spec_from_file_location("post_hoc", path.relpath(base.base_namespace.external_posthoc_path))
@@ -403,7 +402,6 @@ def run_user_level_experiment(config_path: str = '', dataset_name: str = '', mod
                                                   output=base.base_namespace.path_output_rec_performance)
 
     logger.info("End experiment")
-    # TODO: check before to push only this feature!
     # logger.info("Start Post-Hoc scripts")
 
     # spec = importlib.util.spec_from_file_location("post_hoc", path.relpath(base.base_namespace.external_posthoc_path))

@@ -26,7 +26,6 @@ class KGINLoader(AbstractLoader):
                 self.entities.add(int(line.split(' ')[-1]))
                 # self.entities.add(int(line.split('\n')[-1]))
 
-        # TODO: in realtà sarebbe interessante capire quali item sono stati eliminati, per rimuoverli anche da entities
         self.entity_list = set.difference(self.entities, self.items)
 
     def get_mapped(self):

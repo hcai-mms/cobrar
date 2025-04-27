@@ -41,8 +41,6 @@ class KGINTSVLoader(AbstractLoader):
         # self.entities = set(entities.remap.unique())
         self.entities = set(self.map_.values[:, 0]).union(set(self.map_.values[:, 2]))
         self.items = set.intersection(self.items, self.entities)
-        # ma gli item non andrebbero filtrati nel senso: se non sono nel kg via?
-        # TODO: in realtà sarebbe interessante capire quali item sono stati eliminati, per rimuoverli anche da entities
         self.entity_list = set.difference(self.entities, self.items)  # entities - items
 
     def get_mapped(self):
