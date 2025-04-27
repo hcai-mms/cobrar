@@ -1,0 +1,21 @@
+experiment:
+  data_config:
+    strategy: dataset
+    dataset_path: ../dataset/{0}/interactions.tsv
+  prefiltering:
+    strategy: iterative_k_core
+    core: 5
+  splitting:
+    test_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.2
+    validation_splitting:
+      strategy: random_subsampling
+      test_ratio: 0.1
+  top_k: 100
+  evaluation:
+    cutoffs: [ 5 ]
+    simple_metrics: [ nDCG ]
+    paired_ttest: False
+    wilcoxon_test: False
+  external_models_path: ../external/models/__init__.py

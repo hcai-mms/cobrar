@@ -1,0 +1,14 @@
+experiment:
+  backend: pytorch
+  data_config:
+    strategy: fixed
+    train_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/train.tsv
+    validation_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/val.tsv
+    test_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/test.tsv
+  dataset: baby
+  top_k: 50
+  evaluation:
+    cutoffs: [ 5, 10, 20, 50 ]
+    simple_metrics: [ Recall, Precision, nDCG ]
+  external_models_path: ../external/models/__init__.py
+

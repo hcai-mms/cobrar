@@ -1,0 +1,24 @@
+experiment:
+  gpu: 0
+  backend: pytorch
+  models:
+    external.CoBraR:
+      meta:
+        save_weights: False
+        save_recs: False
+      lr: [ 1.e-5 ] 
+      batch_size: [ 256 ]
+      dropout: [0.1, 0.5, 0.9]
+      batch_norm: [True, False]
+      reg: [ 1.e-3 ]
+      embedding_dim: [ 64 ]
+      user_mlp: [ [] ]
+      item_mlp: [ [] ]
+      collaborative_branch: [ [ 512 ] ]
+      neg_ratio: [ 5 ]
+      similarity: cosine
+
+      early_stopping:
+        verbose: False
+        patience: 10
+        monitor: nDCG@5

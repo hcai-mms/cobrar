@@ -1,0 +1,21 @@
+experiment:
+  backend: pytorch
+  gpu: 0
+  models:
+    external.DeepMF:
+      meta:
+        save_weights: False
+        save_recs: False
+      lr: [ 1.e-8 ]
+      batch_size: [ 512 ]
+      reg: [ 1.e-3  ]
+      embedding_dim: [ 64 ]
+      user_mlp: [ [] ]
+      item_mlp: [ [] ]
+      neg_ratio: [ 5 ]
+      similarity: cosine
+
+      early_stopping:
+        verbose: False
+        patience: 10
+        monitor: nDCG@5
