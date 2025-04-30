@@ -14,6 +14,5 @@ for _backend in sys.modules["external"].backend:
         pass
     elif _backend == "pytorch":
         from .bprmf.BPRMF import BPRMF
-        from .deepfm.DeepFM import DeepFM
         from .deepmf.DeepMF import DeepMF
         from .cobra.CoBraR import CoBraR
