@@ -9,7 +9,7 @@ Under review as short paper at RecSys'25.
 │  │  ├── amazon_baby.yml
 │  │  ├── dataset_defaults.yml
 │  │  └── ml1m.yml
-│  ├── DEFAULT.yml
+│  ├── DEFAULT.ymlemo
 │  ├── models
 │  │  ├── bprmf.yml
 │  │  ├── cobrar.yml
@@ -85,6 +85,7 @@ conda create env -n cobrar python=3.9
 conda activate cobrar
 pip install --upgrade pip
 pip install -r requirements.txt
+pip install -r requirements_torch.txt 
 ```
  2. install [elliot](https://github.com/sisinflab/elliot) requirements
 ```bash
