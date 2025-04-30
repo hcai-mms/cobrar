@@ -103,7 +103,9 @@ wandb login
 
 # Dataset
 Download the datasets from Zenodo:
+https://zenodo.org/records/15309922
 
+Put them in the dataset folder showed in the tree above (or wherever you want, but then change the paths in the configs accordingly ;)
 
 # Run experiment
 1. (optional) adapt the config files for the models
