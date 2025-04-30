@@ -3,10 +3,10 @@ experiment:
   dataset: movielens_1m
   data_config:
     strategy: dataset
-    dataset_path: /<YOUR_DATASET_PATH>/movielens_1m/dataset.tsv
+    dataset_path: ../dataset/movielens1m_elliot/movielens_1m/dataset.tsv
   splitting:
     save_on_disk: True
-    save_folder: /<YOUR_DATASET_PATH>/movielens_1m/{0}_splits/
+    save_folder: ../dataset/movielens1m_elliot/movielens_1m/{0}_splits/
     test_splitting:
       strategy: random_subsampling
       test_ratio: 0.2

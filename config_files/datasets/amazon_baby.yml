@@ -2,9 +2,9 @@ experiment:
   backend: pytorch
   data_config:
     strategy: fixed
-    train_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/train.tsv
-    validation_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/val.tsv
-    test_path: /<YOUR_DATASET_PATH>/amazon_elliot/{0}/test.tsv
+    train_path: ../dataset/amazon_elliot/{0}/train.tsv
+    validation_path: ../dataset/amazon_elliot/{0}/val.tsv
+    test_path: ../dataset/amazon_elliot/{0}/test.tsv
   dataset: baby
   top_k: 50
   evaluation:
