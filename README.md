@@ -1,5 +1,118 @@
 # Parameter-Efficient Single Collaborative Branch for Recommendation
 Under review as short paper at RecSys'25. Instructions to come.
 
-Elliot
-- https://github.com/sisinflab/elliot
+# Project structure
+```bash
+.
+├── config_files
+│  ├── datasets
+│  │  ├── amazon_baby.yml
+│  │  ├── dataset_defaults.yml
+│  │  └── ml1m.yml
+│  ├── DEFAULT.yml
+│  ├── models
+│  │  ├── bprmf.yml
+│  │  ├── cobrar.yml
+│  │  ├── deepmf.yml
+│  │  ├── model_defaults.yml
+│  │  └── simple.yml
+│  └── tmp.yml # Will be created after each run
+├── dataset # can be downloaded at the link below
+│  ├── amazon_elliot
+│  │  └── baby
+│  │      ├── test.tsv
+│  │      ├── train.tsv
+│  │      └── val.tsv
+│  └── movielens1m_elliot
+│      └── movielens_1m
+│          ├── dataset.tsv
+│          └── movielens_1m_splits
+│              └── 0
+│                  ├── 0
+│                  │  ├── train.tsv
+│                  │  └── val.tsv
+│                  └── test.tsv
+├── elliot
+│  ├── ... # Elliot structure
+│  ├── run.py
+│  ├── splitter # Elliot splitter
+│  │  ├── ...
+│  └── utils # Elliot utils
+│      ├── ...
+├── external
+│  └── models
+│      ├── bprmf
+│      │  ├── BPRMFModel.py
+│      │  ├── BPRMF.py
+│      │  └── __init__.py
+│      ├── cobra
+│      │  ├── CoBraRModel.py
+│      │  ├── CoBraR.py
+│      │  └── __init__.py
+│      ├── deepmf
+│      │  ├── DeepMFModel.py
+│      │  ├── DeepMF.py
+│      │  └── __init__.py
+│      └── __init__.py
+├── log
+│  └── elliot.log
+├── README.md
+├── requirements_torch_geometric.txt
+├── requirements_torch.txt
+├── requirements.txt
+├── results # Will be created after each run
+│  └── movielens_1m
+│      ├── performance
+│      ├── recs
+│      ├── user_level
+│      └── weights
+└── amazon_baby
+│      ├── performance
+│      ├── recs
+│      ├── user_level
+│      └── weights
+├── run.py
+├── run_sep.py
+├── run_split.py
+└── utils.py
+```
+
+# Setup
+Configure your `conda` environment:
+ 1. create the environment
+```bash
+conda create env -n cobrar python=3.9
+conda activate cobrar
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+ 2. install [elliot](https://github.com/sisinflab/elliot) requirements
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+ 4. set the WANDB_API_KEY environment variable.
+```bash
+export WANDB_API_KEY=<your_api_key>
+```
+5. install wandb and log in.
+```bash
+pip install wandb
+wandb login
+```
+
+# Dataset
+Download the datasets from Zenodo:
+
+
+# Run experiment
+1. (optional) adapt the config files for the models
+2. run an experiment with `run_sep.py`. For instance, to run `CoBraR` on `ml1m`, type
+```bash
+python.py run_sep.py --model cobrar --data ml1m
+```
+# Citation 
+If you use Cobra or this code, cite
+```TO BE ADDED```
+
+Since the code also relies on Elliot, please also see [its repository](https://github.com/sisinflab/elliot) for how to cite it. 
