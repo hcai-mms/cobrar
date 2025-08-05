@@ -1,5 +1,8 @@
 # Parameter-Efficient Single Collaborative Branch for Recommendation
-Under review as short paper at RecSys'25.
+Repository for `CoBraR` - Collaborative Branch Recommender. This work has been accepted as LBR at RecSys'25. 
+
+![alt text](./images/cobrar.png "CoBraR")
+
 
 # Project structure
 ```bash
@@ -115,7 +118,20 @@ Put them in the dataset folder showed in the tree above (or wherever you want, b
 python.py run_sep.py --model cobrar --data ml1m
 ```
 # Citation 
-If you use Cobra or this code, cite
-```TO BE ADDED```
+If you use CoBraR or this code, cite
+```
+@inproceedings{moscati2025cobrar,
+    title = {Parameter-Efficient Single Collaborative Branch for Recommendation},
+    author = {Moscati, Marta and Nawaz, Shah and Schedl, Markus},
+    booktitle = {Proceedings of the 19th ACM Conference on Recommender Systems (RecSys)},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/xx.xxxx/xxxxxxx.xxxxxxx},
+    doi = {xx.xxxx/xxxxxxx.xxxxxxx},
+    pages = {xxx-yyy},
+    location = {Prague, Czech Republic},
+    year = {2025}
+} 
+```
 
 Since the code also relies on Elliot, please also see [its repository](https://github.com/sisinflab/elliot) for how to cite it. 
